@@ -47,7 +47,3 @@ Fetch records from the database and use them in your frontend component.
   function's RETURN statement */
 // const { data: todos } = await client.models.Todo.list()
 // return <ul>{todos.map(todo => <li key={todo.id}>{todo.content}</li>)}</ul>
-
-}).authorization(allow => [allow.owner()]), en defaultAuthorizationMode: 'userPool', aan toegevoegd, maar dat ging niet helemaal goed, waar moet het?
-
-Edit
