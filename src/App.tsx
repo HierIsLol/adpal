@@ -3,6 +3,9 @@
 import { API, graphqlOperation } from 'aws-amplify';
 import { listTodos } from './graphql/queries';
 import { useState, useEffect } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
+import ClientIdPage from './ClientIdPage';
 
 type Todo = {
   id: string;
@@ -18,6 +21,22 @@ type ListTodosResponse = {
     };
   };
 };
+
+const HomePage = () => (
+    <div>
+        <h1>Home Page</h1>
+        <Link to="/client-id">Go to Client ID Page</Link>
+    </div>
+);
+
+const App = () => (
+    <Router>
+        <Switch>
+            <Route path="/client-id" component={ClientIdPage} />
+            <Route path="/" component={HomePage} />
+        </Switch>
+    </Router>
+);
 
 const App = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
