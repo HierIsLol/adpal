@@ -18,6 +18,7 @@ type ListTodosResponse = {
 
 const App = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [newTodoContent, setNewTodoContent] = useState<string>('');
 
   const fetchData = async () => {
     try {
@@ -31,12 +32,13 @@ const App = () => {
           query: listTodos,
         }),
       });
-      
+
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-      
+
       const responseData: ListTodosResponse = await response.json();
+      console.log('Fetched data:', responseData);  // Controleer of er data binnenkomt
       const items = responseData.data.listTodos.items;
       setTodos(items);
     } catch (error) {
@@ -48,8 +50,21 @@ const App = () => {
     fetchData();
   }, []);
 
+  const addTodo = () => {
+    if (newTodoContent.trim() === '') {
+      return;
+    }
+    const newTodo: Todo = {
+      id: new Date().toISOString(),
+      content: newTodoContent,
+      isDone: false,
+    };
+    setTodos([...todos, newTodo]);
+    setNewTodoContent('');
+  };
+
   return (
-    <div>
+    <div style={{ textAlign: 'center' }}>
       <h1>Todo List</h1>
       <ul>
         {todos.map(todo => (
@@ -58,6 +73,15 @@ const App = () => {
           </li>
         ))}
       </ul>
+      <div>
+        <input
+          type="text"
+          value={newTodoContent}
+          onChange={(e) => setNewTodoContent(e.target.value)}
+          placeholder="New todo"
+        />
+        <button onClick={addTodo}>Add Todo</button>
+      </div>
     </div>
   );
 };
