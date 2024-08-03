@@ -1,40 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
-// We definiëren een type voor de chartData
-type ChartDataItem = {
-  name: string;
-  value: number;
-};
-
-type RechartsComponents = {
-  PieChart: React.ComponentType<any>;
-  Pie: React.ComponentType<any>;
-  Cell: React.ComponentType<any>;
-  BarChart: React.ComponentType<any>;
-  Bar: React.ComponentType<any>;
-  XAxis: React.ComponentType<any>;
-  YAxis: React.ComponentType<any>;
-  CartesianGrid: React.ComponentType<any>;
-  Tooltip: React.ComponentType<any>;
-  Legend: React.ComponentType<any>;
-};
-
 const DashboardPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [s3Content, setS3Content] = useState('');
   const [lambdaResult, setLambdaResult] = useState('');
-  const [chartData, setChartData] = useState<ChartDataItem[]>([]);
-
-  const [RechartsComponents, setRechartsComponents] = useState<RechartsComponents | null>(null);
+  const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
     getCurrentUser();
     fetchS3Content();
     fetchChartData();
-
-    const { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } = (window as any).Recharts;
-    setRechartsComponents({ PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend });
   }, []);
 
   const getCurrentUser = async () => {
@@ -88,7 +64,8 @@ const DashboardPage: React.FC = () => {
   };
 
   const fetchChartData = () => {
-    const data: ChartDataItem[] = [
+    // This is mock data. In a real scenario, you would fetch this from an API or Lambda function
+    const data = [
       { name: 'Category A', value: 400 },
       { name: 'Category B', value: 300 },
       { name: 'Category C', value: 300 },
@@ -96,14 +73,6 @@ const DashboardPage: React.FC = () => {
     ];
     setChartData(data);
   };
-
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
-
-  if (!RechartsComponents) {
-    return <div>Loading charts...</div>;
-  }
-
-  const { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } = RechartsComponents;
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
@@ -125,39 +94,11 @@ const DashboardPage: React.FC = () => {
         </pre>
       </div>
       
-      <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-        <div>
-          <h3>Pie Chart</h3>
-          <PieChart width={400} height={400}>
-            <Pie
-              data={chartData}
-              cx={200}
-              cy={200}
-              labelLine={false}
-              outerRadius={80}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {chartData.map((_, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </div>
-        
-        <div>
-          <h3>Bar Chart</h3>
-          <BarChart width={400} height={400} data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="value" fill="#8884d8" />
-          </BarChart>
-        </div>
+      <div>
+        <h3>Chart Data (JSON format)</h3>
+        <pre style={{ backgroundColor: '#f0f0f0', padding: '10px', borderRadius: '5px' }}>
+          {JSON.stringify(chartData, null, 2)}
+        </pre>
       </div>
     </div>
   );
