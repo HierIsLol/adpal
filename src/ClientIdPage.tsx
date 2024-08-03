@@ -28,7 +28,7 @@ const ClientIdPage = () => {
         <div style={{ width: '434px', height: '886px', background: '#EEEEEE', fontFamily: 'Arial, sans-serif', padding: '20px' }}>
             <div style={{ background: '#FFFFFF', borderRadius: '32.50px', padding: '20px' }}>
                 <h1>↓Volg de instructies</h1>
-                <p>Om verbinding te kunnen maken met je store hebben wij een koppelingsnummer nodig.</p>
+                <p>Om verbinding te kunnen maken met je store  hebben wij een koppelingsnummer nodig.</p>
                 <div style={{ margin: '20px 0' }}>
                     <label>
                         Client ID:
