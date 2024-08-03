@@ -1,7 +1,6 @@
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
-import { useEffect, useState } from "react";
-import { API, graphqlOperation } from 'aws-amplify';
+import { useState, useEffect } from 'react';
 import { listTodos } from './graphql/queries';
 
 type Todo = {
@@ -24,8 +23,23 @@ function App() {
 
   const fetchData = async () => {
     try {
-      const response = await API.graphql(graphqlOperation(listTodos)) as ListTodosResponse;
-      const items = response.data.listTodos.items;
+      const response = await fetch('https://v6wglzzy3rgnfhgeks3ysp3ezq.appsync-api.us-east-1.amazonaws.com/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': 'da2-yan4cms26nbpjnzayiv5s3qrdm',
+        },
+        body: JSON.stringify({
+          query: listTodos,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      
+      const responseData: ListTodosResponse = await response.json();
+      const items = responseData.data.listTodos.items;
       setTodos(items);
     } catch (error) {
       console.error("Error fetching todos", error);
@@ -39,7 +53,8 @@ function App() {
   function createTodo() {
     const content = window.prompt("Todo content");
     if (content) {
-      // Hier moet je de logica toevoegen om een nieuw todo-item aan te maken via AWS Amplify
+      // Voeg hier de logica toe om een nieuw todo-item aan te maken
+      // Bijvoorbeeld een fetch-aanroep naar een createTodo-mutation in GraphQL
     }
   }
 
