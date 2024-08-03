@@ -15,10 +15,14 @@ const StoreLinkPage: React.FC = () => {
     try {
       const { tokens } = await fetchAuthSession();
       const idToken = tokens?.idToken;
-      if (idToken) {
-        // De gebruikersnaam is meestal beschikbaar in de 'cognito:username' claim
+      if (idToken && idToken.payload) {
         const currentUsername = idToken.payload['cognito:username'];
-        setUsername(currentUsername || '');
+        if (typeof currentUsername === 'string') {
+          setUsername(currentUsername);
+        } else {
+          console.error('Username is not a string:', currentUsername);
+          setUsername('');
+        }
       }
     } catch (error) {
       console.error('Error getting current user:', error);
