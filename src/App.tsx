@@ -21,11 +21,11 @@ const App = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('https://your-appsync-api-endpoint/graphql', {
+      const response = await fetch('https://v6wglzzy3rgnfhgeks3ysp3ezq.appsync-api.us-east-1.amazonaws.com/graphql', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': 'your-api-key',
+          'x-api-key': 'da2-yan4cms26nbpjnzayiv5s3qrdm',
         },
         body: JSON.stringify({
           query: listTodos,
