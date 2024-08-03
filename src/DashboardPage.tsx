@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
+// Definieer een type voor de chartData items
+type ChartDataItem = {
+  name: string;
+  value: number;
+};
+
 const DashboardPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [s3Content, setS3Content] = useState('');
   const [lambdaResult, setLambdaResult] = useState('');
-  const [chartData, setChartData] = useState([]);
+  const [chartData, setChartData] = useState<ChartDataItem[]>([]); // Specificeer het type hier
 
   useEffect(() => {
     getCurrentUser();
@@ -65,7 +71,7 @@ const DashboardPage: React.FC = () => {
 
   const fetchChartData = () => {
     // This is mock data. In a real scenario, you would fetch this from an API or Lambda function
-    const data = [
+    const data: ChartDataItem[] = [
       { name: 'Category A', value: 400 },
       { name: 'Category B', value: 300 },
       { name: 'Category C', value: 300 },
