@@ -18,12 +18,12 @@ function App() {
               <h1>Welkom {user?.signInDetails?.loginId}</h1>
               <p>We zijn nog druk bezig, je kunt alvast je store koppelen 😁</p>
               <Link to="/store-link">
-                <button style={{ fontSize: '18px', padding: '10px 20px', backgroundColor: '#083464', border: 'none', cursor: 'pointer' }}>
+                <button style={{ fontSize: '18px', padding: '10px 20px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white' }}>
                   →Koppel mijn store!
                 </button>
               </Link>
-              <button onClick={signOut} style={{ display: 'block', margin: '20px auto', backgroundColor: '#f44336', border: 'none', cursor: 'pointer' }}>
-                Sign out
+              <button onClick={signOut} style={{ display: 'block', margin: '20px auto', backgroundColor: '#f44336', border: 'none', cursor: 'pointer', color: 'white' }}>
+                Uitloggen
               </button>
             </div>
             <Routes>
