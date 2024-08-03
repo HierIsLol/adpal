@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
-// We definiëren een type voor de Recharts componenten die we gaan gebruiken
+// We definiëren een type voor de chartData
+type ChartDataItem = {
+  name: string;
+  value: number;
+};
+
 type RechartsComponents = {
   PieChart: React.ComponentType<any>;
   Pie: React.ComponentType<any>;
@@ -19,9 +24,8 @@ const DashboardPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [s3Content, setS3Content] = useState('');
   const [lambdaResult, setLambdaResult] = useState('');
-  const [chartData, setChartData] = useState([]);
+  const [chartData, setChartData] = useState<ChartDataItem[]>([]);
 
-  // We definiëren een state voor de Recharts componenten
   const [RechartsComponents, setRechartsComponents] = useState<RechartsComponents | null>(null);
 
   useEffect(() => {
@@ -29,7 +33,6 @@ const DashboardPage: React.FC = () => {
     fetchS3Content();
     fetchChartData();
 
-    // We laden de Recharts componenten nadat de component is gemount
     const { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } = (window as any).Recharts;
     setRechartsComponents({ PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend });
   }, []);
@@ -85,8 +88,7 @@ const DashboardPage: React.FC = () => {
   };
 
   const fetchChartData = () => {
-    // This is mock data. In a real scenario, you would fetch this from an API or Lambda function
-    const data = [
+    const data: ChartDataItem[] = [
       { name: 'Category A', value: 400 },
       { name: 'Category B', value: 300 },
       { name: 'Category C', value: 300 },
@@ -136,7 +138,7 @@ const DashboardPage: React.FC = () => {
               fill="#8884d8"
               dataKey="value"
             >
-              {chartData.map((entry, index) => (
+              {chartData.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
