@@ -1,5 +1,3 @@
-import API from 'aws-amplify/api';
-import graphqlOperation from 'aws-amplify/graphql-operation';
 import { listTodos } from './graphql/queries';
 import { useState, useEffect } from 'react';
 
@@ -23,8 +21,23 @@ const App = () => {
 
   const fetchData = async () => {
     try {
-      const response = await API.graphql(graphqlOperation(listTodos)) as ListTodosResponse;
-      const items = response.data.listTodos.items;
+      const response = await fetch('https://your-appsync-api-endpoint/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': 'your-api-key',
+        },
+        body: JSON.stringify({
+          query: listTodos,
+        }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      
+      const responseData: ListTodosResponse = await response.json();
+      const items = responseData.data.listTodos.items;
       setTodos(items);
     } catch (error) {
       console.error("Error fetching todos", error);
