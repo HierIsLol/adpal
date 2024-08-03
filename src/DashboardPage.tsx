@@ -11,7 +11,7 @@ const DashboardPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [s3Content, setS3Content] = useState('');
   const [lambdaResult, setLambdaResult] = useState('');
-  const [chartData, setChartData] = useState<ChartDataItem[]>([]); // Specificeer het type hier
+  const [chartData, setChartData] = useState<ChartDataItem[]>([]);
 
   useEffect(() => {
     getCurrentUser();
@@ -53,19 +53,32 @@ const DashboardPage: React.FC = () => {
 
   const callLambdaFunction = async () => {
     try {
+      const { tokens } = await fetchAuthSession();
+      const token = tokens?.idToken?.toString();
+      
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
       const response = await fetch('https://pb2g7k50l9.execute-api.us-east-1.amazonaws.com/prod/token_ophalen', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ username }),
+        body: JSON.stringify({ username })
       });
+
       if (response.ok) {
         const result = await response.json();
         setLambdaResult(JSON.stringify(result, null, 2));
+      } else {
+        const errorText = await response.text();
+        throw new Error(`API request failed: ${errorText}`);
       }
     } catch (error) {
       console.error('Error calling Lambda function:', error);
+      setLambdaResult(`Error: ${error.message}`);
     }
   };
 
