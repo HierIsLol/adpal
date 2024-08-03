@@ -21,7 +21,6 @@ type ListTodosResponse = {
 };
 
 function App() {
-  const [todos, setTodos] = useState<Todo[]>([]);
 
   const fetchData = async () => {
     try {
