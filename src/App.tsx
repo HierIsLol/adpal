@@ -1,3 +1,4 @@
+
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import { useEffect, useState } from "react";
@@ -11,11 +12,23 @@ function App() {
 
   useEffect(() => {
     const subscription = client.models.Todo.observeQuery().subscribe({
-      next: (data) => setTodos([...data.items]),
+      next: ({ items }) => {
+        if (items) {
+          setTodos(items);
+        } else {
+          console.error("Invalid data structure:", items);
+        }
+      },
     });
 
     // Fetch initial data
-    client.models.Todo.list().then(data => setTodos(data.items));
+    client.models.Todo.list().then(({ items }) => {
+      if (items) {
+        setTodos(items);
+      } else {
+        console.error("Invalid data structure:", items);
+      }
+    });
 
     // Clean up the subscription on unmount
     return () => subscription.unsubscribe();
@@ -26,8 +39,12 @@ function App() {
     if (content) {
       try {
         await client.models.Todo.create({ content });
-        const data = await client.models.Todo.list();
-        setTodos(data.items);
+        const { items } = await client.models.Todo.list();
+        if (items) {
+          setTodos(items);
+        } else {
+          console.error("Invalid data structure:", items);
+        }
       } catch (error) {
         console.error("Error creating todo:", error);
         // Log the detailed error
