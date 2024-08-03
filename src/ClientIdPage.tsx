@@ -1,5 +1,3 @@
-import React, { useState } from 'react';
-
 const ClientIdPage = () => {
     const [clientId, setClientId] = useState('');
     const [clientSecret, setClientSecret] = useState('');
