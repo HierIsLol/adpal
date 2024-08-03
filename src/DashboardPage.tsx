@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
-// Definieer een type voor de chartData items
 type ChartDataItem = {
   name: string;
   value: number;
@@ -13,6 +12,7 @@ const DashboardPage: React.FC = () => {
   const [lambdaResult, setLambdaResult] = useState('');
   const [chartData, setChartData] = useState<ChartDataItem[]>([]);
   const [campaigns, setCampaigns] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     getCurrentUser();
@@ -32,6 +32,7 @@ const DashboardPage: React.FC = () => {
       }
     } catch (error) {
       console.error('Error getting current user:', error);
+      setError('Failed to get current user');
     }
   };
 
@@ -111,7 +112,6 @@ const DashboardPage: React.FC = () => {
         throw new Error('No authentication token available');
       }
 
-      // Replace this URL with your actual API endpoint for fetching chart data
       const response = await fetch('https://your-api-gateway-url.com/get-chart-data', {
         method: 'GET',
         headers: {
@@ -128,11 +128,13 @@ const DashboardPage: React.FC = () => {
       }
     } catch (error: unknown) {
       console.error('Error fetching chart data:', error);
-      // You might want to set some state here to show an error message in the UI
+      setError('Failed to fetch chart data');
     }
   };
 
   const getCampaigns = async () => {
+    setError(null);
+    setCampaigns('');
     try {
       const { tokens } = await fetchAuthSession();
       const token = tokens?.idToken?.toString();
@@ -141,6 +143,7 @@ const DashboardPage: React.FC = () => {
         throw new Error('No authentication token available');
       }
 
+      console.log('Fetching campaigns...');
       const response = await fetch('https://2bqdoncz5d.execute-api.us-east-1.amazonaws.com/prod/getcampaignsv11', {
         method: 'GET',
         headers: {
@@ -149,19 +152,24 @@ const DashboardPage: React.FC = () => {
         },
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
       if (response.ok) {
         const result = await response.json();
+        console.log('Campaigns result:', result);
         setCampaigns(JSON.stringify(result, null, 2));
       } else {
         const errorText = await response.text();
+        console.error('Error response:', errorText);
         throw new Error(`API request failed: ${errorText}`);
       }
     } catch (error: unknown) {
       console.error('Error getting campaigns:', error);
       if (error instanceof Error) {
-        setCampaigns(`Error: ${error.message}`);
+        setError(`Error: ${error.message}`);
       } else {
-        setCampaigns('An unknown error occurred while fetching campaigns');
+        setError('An unknown error occurred while fetching campaigns');
       }
     }
   };
@@ -170,6 +178,8 @@ const DashboardPage: React.FC = () => {
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1>Dashboard</h1>
       <h2>Welcome, {username}</h2>
+      
+      {error && <div style={{ color: 'red', marginBottom: '20px' }}>{error}</div>}
       
       <div style={{ marginBottom: '20px' }}>
         <h3>S3 Content</h3>
