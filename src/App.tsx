@@ -1,10 +1,23 @@
-import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import StoreLinkPage from './StoreLinkPage';
 
-const HomePage = ({ signOut, user }) => (
+// Define types for the user and signOut function
+type User = {
+  signInDetails?: {
+    loginId?: string;
+  };
+};
+
+type SignOutFunction = () => void;
+
+interface HomePageProps {
+  signOut: SignOutFunction;
+  user: User;
+}
+
+const HomePage: React.FC<HomePageProps> = ({ signOut, user }) => (
   <div style={{ paddingTop: '220px', textAlign: 'center' }}>
     <h1>Welkom {user?.signInDetails?.loginId}</h1>
     <p>We zijn nog druk bezig, je kunt alvast je store koppelen 😁</p>
@@ -23,7 +36,7 @@ function App() {
   return (
     <Router>
       <Authenticator>
-        {({ signOut, user }) => (
+        {({ signOut, user }: { signOut: SignOutFunction; user: User }) => (
           <main style={{ position: 'relative' }}>
             <img 
               src="https://i.postimg.cc/Mp8Whhmw/Ad-Pal-logo-no-white.png" 
