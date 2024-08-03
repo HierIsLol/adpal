@@ -21,3 +21,5 @@ const ClientIdPage = () => {
             console.error('Error:', error);
             setResult('Er is een fout opgetreden bij het koppelen van de store.');
         }
+    }
+}
