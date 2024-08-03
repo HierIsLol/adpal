@@ -1,5 +1,5 @@
-import { Authenticator } from '@aws-amplify/ui-react'
-import '@aws-amplify/ui-react/styles.css'
+import { Authenticator } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
 import { useEffect, useState } from "react";
 import type { Schema } from "../amplify/data/resource";
 import { generateClient } from "aws-amplify/data";
@@ -10,13 +10,30 @@ function App() {
   const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
 
   useEffect(() => {
-    client.models.Todo.observeQuery().subscribe({
+    const subscription = client.models.Todo.observeQuery().subscribe({
       next: (data) => setTodos([...data.items]),
     });
+
+    // Fetch initial data
+    client.models.Todo.list().then(data => setTodos(data.items));
+
+    // Clean up the subscription on unmount
+    return () => subscription.unsubscribe();
   }, []);
 
-  function createTodo() {
-    client.models.Todo.create({ content: window.prompt("Todo content") });
+  async function createTodo() {
+    const content = window.prompt("Todo content");
+    if (content) {
+      try {
+        await client.models.Todo.create({ content });
+        const data = await client.models.Todo.list();
+        setTodos(data.items);
+      } catch (error) {
+        console.error("Error creating todo:", error);
+        // Log the detailed error
+        console.error("Detailed error:", JSON.stringify(error, null, 2));
+      }
+    }
   }
 
   return (
@@ -45,4 +62,3 @@ function App() {
 }
 
 export default App;
- 
