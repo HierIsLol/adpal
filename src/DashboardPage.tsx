@@ -12,6 +12,7 @@ const DashboardPage: React.FC = () => {
   const [s3Content, setS3Content] = useState('');
   const [lambdaResult, setLambdaResult] = useState('');
   const [chartData, setChartData] = useState<ChartDataItem[]>([]);
+  const [campaigns, setCampaigns] = useState('');
 
   useEffect(() => {
     getCurrentUser();
@@ -131,6 +132,40 @@ const DashboardPage: React.FC = () => {
     }
   };
 
+  const getCampaigns = async () => {
+    try {
+      const { tokens } = await fetchAuthSession();
+      const token = tokens?.idToken?.toString();
+      
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await fetch('https://2bqdoncz5d.execute-api.us-east-1.amazonaws.com/prod/getcampaignsv11', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setCampaigns(JSON.stringify(result, null, 2));
+      } else {
+        const errorText = await response.text();
+        throw new Error(`API request failed: ${errorText}`);
+      }
+    } catch (error: unknown) {
+      console.error('Error getting campaigns:', error);
+      if (error instanceof Error) {
+        setCampaigns(`Error: ${error.message}`);
+      } else {
+        setCampaigns('An unknown error occurred while fetching campaigns');
+      }
+    }
+  };
+
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1>Dashboard</h1>
@@ -145,9 +180,17 @@ const DashboardPage: React.FC = () => {
       
       <div style={{ marginBottom: '20px' }}>
         <h3>Lambda Function</h3>
-        <button onClick={callLambdaFunction} style={{ marginBottom: '10px' }}>Call Lambda Function</button>
+        <button onClick={callLambdaFunction} style={{ marginBottom: '10px', marginRight: '10px' }}>Call Lambda Function</button>
+        <button onClick={getCampaigns} style={{ marginBottom: '10px' }}>Campagnes Krijgen</button>
         <pre style={{ backgroundColor: '#f0f0f0', padding: '10px', borderRadius: '5px' }}>
           {lambdaResult || 'Lambda function result will appear here'}
+        </pre>
+      </div>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <h3>Campaigns</h3>
+        <pre style={{ backgroundColor: '#f0f0f0', padding: '10px', borderRadius: '5px' }}>
+          {campaigns || 'Campaigns will appear here'}
         </pre>
       </div>
       
