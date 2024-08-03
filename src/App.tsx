@@ -1,5 +1,5 @@
-import { Authenticator } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
+import { Authenticator } from '@aws-amplify/ui-react'
+import '@aws-amplify/ui-react/styles.css'
 import { useEffect, useState } from "react";
 import type { Schema } from "../amplify/data/resource";
 import { generateClient } from "aws-amplify/data";
@@ -10,46 +10,13 @@ function App() {
   const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
 
   useEffect(() => {
-    const subscription = client.models.Todo.observeQuery().subscribe({
-      next: (data) => {
-        if (data.data && data.data.items) {
-          setTodos(data.data.items);
-        } else {
-          console.error("Invalid data structure:", data);
-        }
-      },
+    client.models.Todo.observeQuery().subscribe({
+      next: (data) => setTodos([...data.items]),
     });
-
-    // Fetch initial data
-    client.models.Todo.list().then((data) => {
-      if (data.data && data.data.items) {
-        setTodos(data.data.items);
-      } else {
-        console.error("Invalid data structure:", data);
-      }
-    });
-
-    // Clean up the subscription on unmount
-    return () => subscription.unsubscribe();
   }, []);
 
-  async function createTodo() {
-    const content = window.prompt("Todo content");
-    if (content) {
-      try {
-        await client.models.Todo.create({ content });
-        const data = await client.models.Todo.list();
-        if (data.data && data.data.items) {
-          setTodos(data.data.items);
-        } else {
-          console.error("Invalid data structure:", data);
-        }
-      } catch (error) {
-        console.error("Error creating todo:", error);
-        // Log the detailed error
-        console.error("Detailed error:", JSON.stringify(error, null, 2));
-      }
-    }
+  function createTodo() {
+    client.models.Todo.create({ content: window.prompt("Todo content") });
   }
 
   return (
