@@ -136,11 +136,12 @@ const DashboardPage: React.FC = () => {
     setError(null);
     setCampaigns('');
     try {
-      const { tokens } = await fetchAuthSession();
+      const { tokens, user } = await fetchAuthSession();
       const token = tokens?.idToken?.toString();
+      const username = user?.username;
       
-      if (!token) {
-        throw new Error('No authentication token available');
+      if (!token || !username) {
+        throw new Error('No authentication token or username available');
       }
 
       console.log('Fetching campaigns...');
@@ -149,11 +150,11 @@ const DashboardPage: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
-        },
+        }
       });
 
       console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
+      console.log('Response headers:', JSON.stringify(Array.from(response.headers.entries())));
 
       if (response.ok) {
         const result = await response.json();
@@ -162,7 +163,7 @@ const DashboardPage: React.FC = () => {
       } else {
         const errorText = await response.text();
         console.error('Error response:', errorText);
-        throw new Error(`API request failed: ${errorText}`);
+        throw new Error(`API request failed: ${response.status} ${response.statusText} - ${errorText}`);
       }
     } catch (error: unknown) {
       console.error('Error getting campaigns:', error);
