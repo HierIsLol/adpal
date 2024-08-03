@@ -1,11 +1,14 @@
-// src/graphql/queries.ts
+type Todo = {
+  id: string;
+  content: string;
+  isDone: boolean;
+};
 
-export const listTodos = `query ListTodos {
-  listTodos {
-    items {
-      id
-      content
-      isDone
-    }
-  }
-}`;
+type ListTodosResponse = {
+  data: {
+    listTodos: {
+      items: Todo[];
+      nextToken?: string;
+    };
+  };
+};
