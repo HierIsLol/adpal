@@ -36,18 +36,33 @@ const DashboardPage: React.FC = () => {
 
   const fetchS3Content = async () => {
     try {
+      const { tokens } = await fetchAuthSession();
+      const token = tokens?.idToken?.toString();
+      
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
       const response = await fetch('https://your-api-gateway-url.com/get-s3-content', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
       });
       if (response.ok) {
         const data = await response.text();
         setS3Content(data);
+      } else {
+        throw new Error('Failed to fetch S3 content');
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error fetching S3 content:', error);
+      if (error instanceof Error) {
+        setS3Content(`Error: ${error.message}`);
+      } else {
+        setS3Content('An unknown error occurred while fetching S3 content');
+      }
     }
   };
 
@@ -76,21 +91,44 @@ const DashboardPage: React.FC = () => {
         const errorText = await response.text();
         throw new Error(`API request failed: ${errorText}`);
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error calling Lambda function:', error);
-      setLambdaResult(`Error: ${error.message}`);
+      if (error instanceof Error) {
+        setLambdaResult(`Error: ${error.message}`);
+      } else {
+        setLambdaResult('An unknown error occurred');
+      }
     }
   };
 
-  const fetchChartData = () => {
-    // This is mock data. In a real scenario, you would fetch this from an API or Lambda function
-    const data: ChartDataItem[] = [
-      { name: 'Category A', value: 400 },
-      { name: 'Category B', value: 300 },
-      { name: 'Category C', value: 300 },
-      { name: 'Category D', value: 200 },
-    ];
-    setChartData(data);
+  const fetchChartData = async () => {
+    try {
+      const { tokens } = await fetchAuthSession();
+      const token = tokens?.idToken?.toString();
+      
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      // Replace this URL with your actual API endpoint for fetching chart data
+      const response = await fetch('https://your-api-gateway-url.com/get-chart-data', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+      });
+
+      if (response.ok) {
+        const data: ChartDataItem[] = await response.json();
+        setChartData(data);
+      } else {
+        throw new Error('Failed to fetch chart data');
+      }
+    } catch (error: unknown) {
+      console.error('Error fetching chart data:', error);
+      // You might want to set some state here to show an error message in the UI
+    }
   };
 
   return (
