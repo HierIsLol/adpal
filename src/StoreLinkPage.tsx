@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Auth } from 'aws-amplify/auth';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 const StoreLinkPage: React.FC = () => {
   const [clientSecret, setClientSecret] = useState('');
@@ -13,8 +13,13 @@ const StoreLinkPage: React.FC = () => {
 
   const getCurrentUser = async () => {
     try {
-      const user = await Auth.currentAuthenticatedUser();
-      setUsername(user.username);
+      const { tokens } = await fetchAuthSession();
+      const idToken = tokens?.idToken;
+      if (idToken) {
+        // De gebruikersnaam is meestal beschikbaar in de 'cognito:username' claim
+        const currentUsername = idToken.payload['cognito:username'];
+        setUsername(currentUsername || '');
+      }
     } catch (error) {
       console.error('Error getting current user:', error);
     }
@@ -27,7 +32,6 @@ const StoreLinkPage: React.FC = () => {
     }
 
     try {
-      // Vervang deze URL door de daadwerkelijke API Gateway URL van uw Lambda-functie
       const lambdaUrl = 'https://ibabjitvv7.execute-api.us-east-1.amazonaws.com/prod/crendetails_save';
       
       const response = await fetch(lambdaUrl, {
@@ -57,8 +61,6 @@ const StoreLinkPage: React.FC = () => {
 
   return (
     <div style={{ width: '434px', height: '886px', position: 'relative', background: 'white', fontFamily: 'Arial, sans-serif' }}>
-      {/* ... (bestaande stijlen en elementen) ... */}
-      
       <input
         id="clientSecret"
         type="text"
