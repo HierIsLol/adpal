@@ -1,89 +1,80 @@
-import { listTodos } from './graphql/queries';
-import { useState, useEffect } from 'react';
+import { Authenticator } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
+import { useEffect, useState } from "react";
+import type { Schema } from "../amplify/data/resource";
+import { generateClient } from "aws-amplify/data";
 
-type Todo = {
-  id: string;
-  content: string;
-  isDone: boolean;
-};
+const client = generateClient<Schema>();
 
-type ListTodosResponse = {
-  data: {
-    listTodos: {
-      items: Todo[];
-      nextToken?: string;
-    };
-  };
-};
-
-const App = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTodoContent, setNewTodoContent] = useState<string>('');
-
-  const fetchData = async () => {
-    try {
-      const response = await fetch('https://v6wglzzy3rgnfhgeks3ysp3ezq.appsync-api.us-east-1.amazonaws.com/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': 'da2-yan4cms26nbpjnzayiv5s3qrdm',
-        },
-        body: JSON.stringify({
-          query: listTodos,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const responseData: ListTodosResponse = await response.json();
-      console.log('Fetched data:', responseData);  // Controleer of er data binnenkomt
-      const items = responseData.data.listTodos.items;
-      setTodos(items);
-    } catch (error) {
-      console.error("Error fetching todos", error);
-    }
-  };
+function App() {
+  const [todos, setTodos] = useState<Array<Schema["Todo"]["type"]>>([]);
 
   useEffect(() => {
-    fetchData();
+    const subscription = client.models.Todo.observeQuery().subscribe({
+      next: ({ items }) => {
+        if (items) {
+          setTodos(items);
+        } else {
+          console.error("Invalid data structure:", items);
+        }
+      },
+    });
+
+    // Fetch initial data
+    client.models.Todo.list().then(({ items }) => {
+      if (items) {
+        setTodos(items);
+      } else {
+        console.error("Invalid data structure:", items);
+      }
+    });
+
+    // Clean up the subscription on unmount
+    return () => subscription.unsubscribe();
   }, []);
 
-  const addTodo = () => {
-    if (newTodoContent.trim() === '') {
-      return;
+  async function createTodo() {
+    const content = window.prompt("Todo content");
+    if (content) {
+      try {
+        await client.models.Todo.create({ content });
+        const { items } = await client.models.Todo.list();
+        if (items) {
+          setTodos(items);
+        } else {
+          console.error("Invalid data structure:", items);
+        }
+      } catch (error) {
+        console.error("Error creating todo:", error);
+        // Log the detailed error
+        console.error("Detailed error:", JSON.stringify(error, null, 2));
+      }
     }
-    const newTodo: Todo = {
-      id: new Date().toISOString(),
-      content: newTodoContent,
-      isDone: false,
-    };
-    setTodos([...todos, newTodo]);
-    setNewTodoContent('');
-  };
+  }
 
   return (
-    <div style={{ textAlign: 'center' }}>
-      <h1>Todo List</h1>
-      <ul>
-        {todos.map(todo => (
-          <li key={todo.id}>
-            {todo.content} - {todo.isDone ? 'Done' : 'Not Done'}
-          </li>
-        ))}
-      </ul>
-      <div>
-        <input
-          type="text"
-          value={newTodoContent}
-          onChange={(e) => setNewTodoContent(e.target.value)}
-          placeholder="New todo"
-        />
-        <button onClick={addTodo}>Add Todo</button>
-      </div>
-    </div>
+    <Authenticator>
+      {({ signOut, user }) => (
+        <main>
+          <h1>{user?.signInDetails?.loginId}'s todos</h1>
+          <button onClick={createTodo}>+ new</button>
+          <ul>
+            {todos.map((todo) => (
+              <li key={todo.id}>{todo.content}</li>
+            ))}
+          </ul>
+          <div>
+            🥳 App successfully hosted. Try creating a new todo.
+            <br />
+            <a href="https://docs.amplify.aws/react/start/quickstart/#make-frontend-updates">
+              Review next step of this tutorial.
+            </a>
+          </div>
+          <button onClick={signOut}>Sign out</button>
+        </main>
+      )}
+    </Authenticator>
   );
-};
+}
 
 export default App;
