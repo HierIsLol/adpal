@@ -1,6 +1,8 @@
+import { Authenticator } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
+import { useEffect, useState } from "react";
 import { API, graphqlOperation } from 'aws-amplify';
 import { listTodos } from './graphql/queries';
-import { useState, useEffect } from 'react';
 
 type Todo = {
   id: string;
@@ -17,7 +19,7 @@ type ListTodosResponse = {
   };
 };
 
-const App = () => {
+function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
 
   const fetchData = async () => {
@@ -34,18 +36,38 @@ const App = () => {
     fetchData();
   }, []);
 
+  function createTodo() {
+    const content = window.prompt("Todo content");
+    if (content) {
+      // Hier moet je de logica toevoegen om een nieuw todo-item aan te maken via AWS Amplify
+    }
+  }
+
   return (
-    <div>
-      <h1>Todo List</h1>
-      <ul>
-        {todos.map(todo => (
-          <li key={todo.id}>
-            {todo.content} - {todo.isDone ? 'Done' : 'Not Done'}
-          </li>
-        ))}
-      </ul>
-    </div>
+    <Authenticator>
+      {({ signOut, user }) => (
+        <main>
+          <h1>{user?.signInDetails?.loginId}'s todos</h1>
+          <button onClick={createTodo}>+ new</button>
+          <ul>
+            {todos.map((todo) => (
+              <li key={todo.id}>
+                {todo.content} - {todo.isDone ? 'Done' : 'Not Done'}
+              </li>
+            ))}
+          </ul>
+          <div>
+            🥳 App successfully hosted. Try creating a new todo.
+            <br />
+            <a href="https://docs.amplify.aws/react/start/quickstart/#make-frontend-updates">
+              Review next step of this tutorial.
+            </a>
+          </div>
+          <button onClick={signOut}>Sign out</button>
+        </main>
+      )}
+    </Authenticator>
   );
-};
+}
 
 export default App;
