@@ -52,44 +52,29 @@ function App() {
     fetchData();
   }, []);
 
-  function createTodo() {
-    const content = window.prompt("Todo content");
-    if (content) {
-      // Voeg hier de logica toe om een nieuw todo-item aan te maken
-      // Bijvoorbeeld een fetch-aanroep naar een createTodo-mutation in GraphQL
-    }
-  }
-
   return (
     <Router>
       <Authenticator>
         {({ signOut, user }) => (
-          <main>
+          <main style={{ position: 'relative' }}>
+            <img 
+              src="https://i.postimg.cc/Mp8Whhmw/Ad-Pal-logo-no-white.png" 
+              style={{ width: '188px', height: '188px', left: '50%', top: '20px', transform: 'translateX(-50%)', position: 'absolute' }} 
+              alt="AdPal Logo"
+            />
+            <div style={{ paddingTop: '220px', textAlign: 'center' }}>
+              <h1>Welkom {user?.signInDetails?.loginId}</h1>
+              <p>We zijn nog druk bezig, je kunt alvast je store koppelen :)</p>
+              <Link to="/store-link">
+                <button style={{ fontSize: '18px', padding: '10px 20px', backgroundColor: '#d3d3d3', border: 'none', cursor: 'pointer' }}>
+                  Koppel mijn store
+                </button>
+              </Link>
+              <button onClick={signOut} style={{ display: 'block', margin: '20px auto', backgroundColor: '#d3d3d3', border: 'none', cursor: 'pointer' }}>
+                Sign out
+              </button>
+            </div>
             <Routes>
-              <Route path="/" element={
-                <>
-                  <h1>{user?.signInDetails?.loginId}'s todos</h1>
-                  <button onClick={createTodo}>+ new</button>
-                  <ul>
-                    {todos.map((todo) => (
-                      <li key={todo.id}>
-                        {todo.content} - {todo.isDone ? 'Done' : 'Not Done'}
-                      </li>
-                    ))}
-                  </ul>
-                  <div>
-                    🥳 App successfully hosted. Try creating a new todo.
-                    <br />
-                    <a href="https://docs.amplify.aws/react/start/quickstart/#make-frontend-updates">
-                      Review next step of this tutorial.
-                    </a>
-                  </div>
-                  <button onClick={signOut}>Sign out</button>
-                  <Link to="/store-link">
-                    <button>Koppel mijn store</button>
-                  </Link>
-                </>
-              } />
               <Route path="/store-link" element={<StoreLinkPage />} />
             </Routes>
           </main>
