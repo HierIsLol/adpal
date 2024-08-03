@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import { useEffect, useState } from "react";
@@ -65,33 +65,33 @@ function App() {
       <Authenticator>
         {({ signOut, user }) => (
           <main>
-            <Switch>
-              <Route exact path="/">
-                <h1>{user?.signInDetails?.loginId}'s todos</h1>
-                <button onClick={createTodo}>+ new</button>
-                <ul>
-                  {todos.map((todo) => (
-                    <li key={todo.id}>
-                      {todo.content} - {todo.isDone ? 'Done' : 'Not Done'}
-                    </li>
-                  ))}
-                </ul>
-                <div>
-                  🥳 App successfully hosted. Try creating a new todo.
-                  <br />
-                  <a href="https://docs.amplify.aws/react/start/quickstart/#make-frontend-updates">
-                    Review next step of this tutorial.
-                  </a>
-                </div>
-                <button onClick={signOut}>Sign out</button>
-                <Link to="/store-link">
-                  <button>Koppel mijn store</button>
-                </Link>
-              </Route>
-              <Route path="/store-link">
-                <StoreLinkPage />
-              </Route>
-            </Switch>
+            <Routes>
+              <Route path="/" element={
+                <>
+                  <h1>{user?.signInDetails?.loginId}'s todos</h1>
+                  <button onClick={createTodo}>+ new</button>
+                  <ul>
+                    {todos.map((todo) => (
+                      <li key={todo.id}>
+                        {todo.content} - {todo.isDone ? 'Done' : 'Not Done'}
+                      </li>
+                    ))}
+                  </ul>
+                  <div>
+                    🥳 App successfully hosted. Try creating a new todo.
+                    <br />
+                    <a href="https://docs.amplify.aws/react/start/quickstart/#make-frontend-updates">
+                      Review next step of this tutorial.
+                    </a>
+                  </div>
+                  <button onClick={signOut}>Sign out</button>
+                  <Link to="/store-link">
+                    <button>Koppel mijn store</button>
+                  </Link>
+                </>
+              } />
+              <Route path="/store-link" element={<StoreLinkPage />} />
+            </Routes>
           </main>
         )}
       </Authenticator>
