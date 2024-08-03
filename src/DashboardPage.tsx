@@ -53,7 +53,7 @@ const DashboardPage: React.FC = () => {
 
   const callLambdaFunction = async () => {
     try {
-      const response = await fetch('https://your-api-gateway-url.com/call-lambda', {
+      const response = await fetch('https://pb2g7k50l9.execute-api.us-east-1.amazonaws.com/prod/token_ophalen', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
