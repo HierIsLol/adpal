@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { API, graphqlOperation } from 'aws-amplify';
 
 const ClientIdPage = () => {
     const [clientId, setClientId] = useState('');
