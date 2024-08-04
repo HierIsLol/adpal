@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
-type ChartDataItem = {
-  name: string;
-  value: number;
-};
-
 const DashboardPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [campaigns, setCampaigns] = useState('');
