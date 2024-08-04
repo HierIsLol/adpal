@@ -145,12 +145,14 @@ const DashboardPage: React.FC = () => {
 
       console.log('Fetching campaigns...');
       const response = await fetch('https://tgwoxk9c6k.execute-api.us-east-1.amazonaws.com/prod/Token_ophalen', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-      });
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  credentials: 'include', // Add this line
+  body: JSON.stringify({ username })
+});
 
       console.log('Response status:', response.status);
       console.log('Response headers:', response.headers);
