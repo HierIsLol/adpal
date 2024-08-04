@@ -136,25 +136,24 @@ const DashboardPage: React.FC = () => {
     setError(null);
     setCampaigns('');
     try {
-      const { tokens, user } = await fetchAuthSession();
+      const { tokens } = await fetchAuthSession();
       const token = tokens?.idToken?.toString();
-      const username = user?.username;
       
-      if (!token || !username) {
-        throw new Error('No authentication token or username available');
+      if (!token) {
+        throw new Error('No authentication token available');
       }
 
       console.log('Fetching campaigns...');
-      const response = await fetch('https://2bqdoncz5d.execute-api.us-east-1.amazonaws.com/prod/getcampaignsv11', {
+      const response = await fetch('https://tgwoxk9c6k.execute-api.us-east-1.amazonaws.com/prod/Token_ophalen', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
-        }
+        },
       });
 
       console.log('Response status:', response.status);
-      console.log('Response headers:', JSON.stringify(Array.from(response.headers.entries())));
+      console.log('Response headers:', response.headers);
 
       if (response.ok) {
         const result = await response.json();
@@ -163,7 +162,7 @@ const DashboardPage: React.FC = () => {
       } else {
         const errorText = await response.text();
         console.error('Error response:', errorText);
-        throw new Error(`API request failed: ${response.status} ${response.statusText} - ${errorText}`);
+        throw new Error(`API request failed: ${errorText}`);
       }
     } catch (error: unknown) {
       console.error('Error getting campaigns:', error);
