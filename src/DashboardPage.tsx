@@ -44,8 +44,6 @@ const DashboardPage: React.FC = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        credentials: 'include',
-        body: JSON.stringify({ username })
       });
 
       console.log('Response status:', response.status);
