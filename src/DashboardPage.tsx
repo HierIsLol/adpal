@@ -77,7 +77,7 @@ const DashboardPage: React.FC = () => {
         throw new Error('No authentication token available');
       }
 
-      const response = await fetch('https://pb2g7k50l9.execute-api.us-east-1.amazonaws.com/prod/token_ophalen', {
+      const response = await fetch('https://niitq7f67k.execute-api.us-east-1.amazonaws.com/prod/trigger', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
