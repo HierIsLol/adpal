@@ -49,7 +49,7 @@ const DashboardPage: React.FC = () => {
         const result = await response.json();
         setLambdaResult(JSON.stringify(result, null, 2));
         
-        // Wacht 15 seconden en haal dan de S3-inhoud op
+        // Wait 15 seconds and then fetch the S3 content
         setTimeout(() => {
           fetchS3Content();
         }, 15000);
@@ -76,11 +76,16 @@ const DashboardPage: React.FC = () => {
         throw new Error('No authentication token available');
       }
 
-      const response = await fetch('https://niitq7f67k.execute-api.us-east-1.amazonaws.com/prod/get-s3-content', {
+      // Generate the filename based on the current date
+      const currentDate = new Date().toISOString().split('T')[0];
+      const filename = `${username}_report_${currentDate}.json`;
+
+      const response = await fetch('https://9xk13nx1mf.execute-api.us-east-1.amazonaws.com/default/s3latenzien', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'X-Custom-Filename': filename  // Pass the filename in a custom header
         },
       });
       if (response.ok) {
