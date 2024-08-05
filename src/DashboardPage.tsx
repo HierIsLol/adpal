@@ -4,6 +4,7 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 const DashboardPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [lambdaResult, setLambdaResult] = useState('');
+  const [s3ContentUrl, setS3ContentUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -93,7 +94,7 @@ const DashboardPage: React.FC = () => {
           setS3ContentUrl(data.url);
         } else {
           // Anders tonen we een foutmelding
-          setS3ContentUrl('');
+          setS3ContentUrl(null);
           setS3ContentUrl(`Error: Unexpected response format`);
         }
       } else {
