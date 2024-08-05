@@ -67,37 +67,41 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const fetchS3Content = async () => {
-    try {
-      const { tokens } = await fetchAuthSession();
-      const token = tokens?.idToken?.toString();
-      
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
-
-      const response = await fetch('https://niitq7f67k.execute-api.us-east-1.amazonaws.com/prod/get-s3-content', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setS3Content(JSON.stringify(data, null, 2));
-      } else {
-        throw new Error('Failed to fetch S3 content');
-      }
-    } catch (error: unknown) {
-      console.error('Error fetching S3 content:', error);
-      if (error instanceof Error) {
-        setS3Content(`Error: ${error.message}`);
-      } else {
-        setS3Content('An unknown error occurred while fetching S3 content');
-      }
+const fetchS3Content = async () => {
+  try {
+    const { tokens } = await fetchAuthSession();
+    const token = tokens?.idToken?.toString();
+    
+    if (!token) {
+      throw new Error('No authentication token available');
     }
-  };
+
+    // We gebruiken geen filename meer, maar we hebben wel de username nodig
+    const response = await fetch('https://9xk13nx1mf.execute-api.us-east-1.amazonaws.com/default/s3latenzien', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.url) {
+        // Als we een URL krijgen, tonen we die
+        setS3Content(`Website updated successfully. You can view it at: ${data.url}`);
+      } else {
+        // Anders tonen we de ruwe JSON data
+        setS3Content(JSON.stringify(data, null, 2));
+      }
+    } else {
+      throw new Error('Failed to fetch S3 content');
+    }
+  } catch (error) {
+    console.error('Error fetching S3 content:', error);
+    setS3Content(`Error: ${error.message}`);
+  }
+};
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
