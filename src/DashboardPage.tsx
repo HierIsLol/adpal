@@ -76,6 +76,17 @@ const fetchS3Content = async () => {
       throw new Error('No authentication token available');
     }
 
+    const filename = `${username}_report_${new Date().toISOString().split('T')[0]}.json`;
+
+    const response = await fetch('https://9xk13nx1mf.execute-api.us-east-1.amazonaws.com/default/s3latenzien', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'X-Custom-Filename': filename
+      }
+    });
+    
     // We gebruiken geen filename meer, maar we hebben wel de username nodig
     const response = await fetch('https://9xk13nx1mf.execute-api.us-east-1.amazonaws.com/default/s3latenzien', {
       method: 'GET',
