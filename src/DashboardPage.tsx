@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
 const DashboardPage = () => {
   const [username, setUsername] = useState('');
   const [lambdaResult, setLambdaResult] = useState('');
   const [presignedUrl, setPresignedUrl] = useState('');
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     getCurrentUser();
@@ -57,7 +57,7 @@ const DashboardPage = () => {
       }
     } catch (error) {
       console.error('Error calling Lambda function:', error);
-      setLambdaResult(`Error: ${error.message}`);
+      setLambdaResult(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
