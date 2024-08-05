@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 
 const DashboardPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -70,29 +69,25 @@ const DashboardPage: React.FC = () => {
 
   const fetchS3Content = async () => {
     try {
-      const { credentials } = await fetchAuthSession();
+      const { tokens } = await fetchAuthSession();
+      const token = tokens?.idToken?.toString();
       
-      if (!credentials) {
-        throw new Error('No credentials available');
+      if (!token) {
+        throw new Error('No authentication token available');
       }
 
-      const s3Client = new S3Client({
-        region: 'us-east-1',
-        credentials: credentials
+      const response = await fetch('https://niitq7f67k.execute-api.us-east-1.amazonaws.com/prod/get-s3-content', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
       });
-
-      const command = new GetObjectCommand({
-        Bucket: 'advertiser-performance-reports',
-        Key: `${username}_report_${new Date().toISOString().split('T')[0]}.json`
-      });
-
-      const response = await s3Client.send(command);
-      const str = await response.Body?.transformToString();
-      
-      if (str) {
-        setS3Content(str);
+      if (response.ok) {
+        const data = await response.json();
+        setS3Content(JSON.stringify(data, null, 2));
       } else {
-        throw new Error('No content in S3 object');
+        throw new Error('Failed to fetch S3 content');
       }
     } catch (error: unknown) {
       console.error('Error fetching S3 content:', error);
