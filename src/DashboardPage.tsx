@@ -10,7 +10,6 @@ const DashboardPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [s3Content, setS3Content] = useState('');
   const [lambdaResult, setLambdaResult] = useState('');
-  const [chartData, setChartData] = useState<ChartDataItem[]>([]);
   const [campaigns, setCampaigns] = useState('');
   const [error, setError] = useState<string | null>(null);
 
