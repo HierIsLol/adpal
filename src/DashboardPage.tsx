@@ -48,8 +48,11 @@ const DashboardPage = () => {
       if (response.ok) {
         const result = await response.json();
         setLambdaResult(JSON.stringify(result, null, 2));
-        if (result.presignedUrl) {
-          setPresignedUrl(result.presignedUrl);
+        if (result.body) {
+          const bodyObj = JSON.parse(result.body);
+          if (bodyObj.presignedUrl) {
+            setPresignedUrl(bodyObj.presignedUrl);
+          }
         }
       } else {
         const errorText = await response.text();
