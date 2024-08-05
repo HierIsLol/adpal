@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
-const DashboardPage = () => {
+const DashboardPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [lambdaResult, setLambdaResult] = useState('');
   const [presignedUrl, setPresignedUrl] = useState('');
@@ -27,7 +27,7 @@ const DashboardPage = () => {
     }
   };
 
-  const callLambdaFunction = async () => {
+  const callStepFunction = async () => {
     try {
       const { tokens } = await fetchAuthSession();
       const token = tokens?.idToken?.toString();
@@ -36,7 +36,7 @@ const DashboardPage = () => {
         throw new Error('No authentication token available');
       }
 
-      console.log('Calling Lambda function...');
+      console.log('Calling Step Function...');
       const response = await fetch('https://niitq7f67k.execute-api.us-east-1.amazonaws.com/prod/trigger', {
         method: 'POST',
         headers: {
@@ -52,20 +52,11 @@ const DashboardPage = () => {
         console.log('Parsed result:', result);
         setLambdaResult(JSON.stringify(result, null, 2));
         
-        // Extracting presignedUrl from Step Function output
-        if (result.body) {
-          try {
-            const bodyObj = JSON.parse(result.body);
-            console.log('Parsed body object:', bodyObj);
-            if (bodyObj.presignedUrl) {
-              setPresignedUrl(bodyObj.presignedUrl);
-              console.log('Set presigned URL to:', bodyObj.presignedUrl);
-            } else if (bodyObj.executionArn) {
-              // If we have an executionArn, we need to poll for the result
-              await pollStepFunctionExecution(bodyObj.executionArn);
-            }
-          } catch (e) {
-            console.error('Error parsing result body:', e);
+        if (result.presignedUrlResult && result.presignedUrlResult.body) {
+          const bodyObj = JSON.parse(result.presignedUrlResult.body);
+          if (bodyObj.presignedUrl) {
+            console.log('Setting presigned URL:', bodyObj.presignedUrl);
+            setPresignedUrl(bodyObj.presignedUrl);
           }
         }
       } else {
@@ -73,17 +64,9 @@ const DashboardPage = () => {
         throw new Error(`API request failed: ${errorText}`);
       }
     } catch (error) {
-      console.error('Error calling Lambda function:', error);
+      console.error('Error calling Step Function:', error);
       setLambdaResult(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-  };
-
-  const pollStepFunctionExecution = async (executionArn: string) => {
-    // Implement polling logic here
-    // This is a placeholder and needs to be implemented based on your backend setup
-    console.log('Polling Step Function execution:', executionArn);
-    // You would typically make API calls here to check the status of the Step Function
-    // and retrieve the final result when it's complete
   };
 
   return (
@@ -108,10 +91,10 @@ const DashboardPage = () => {
       </div>
       
       <div style={{ marginBottom: '20px' }}>
-        <h3>Lambda Function</h3>
-        <button onClick={callLambdaFunction} style={{ marginBottom: '10px' }}>Generate Report</button>
+        <h3>Step Function</h3>
+        <button onClick={callStepFunction} style={{ marginBottom: '10px' }}>Generate Report</button>
         <pre style={{ backgroundColor: '#f0f0f0', padding: '10px', borderRadius: '5px' }}>
-          {lambdaResult || 'Lambda function result will appear here'}
+          {lambdaResult || 'Step Function result will appear here'}
         </pre>
       </div>
     </div>
