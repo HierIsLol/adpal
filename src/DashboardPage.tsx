@@ -98,9 +98,13 @@ const fetchS3Content = async () => {
       throw new Error('Failed to fetch S3 content');
     }
   } catch (error) {
-    console.error('Error fetching S3 content:', error);
+  console.error('Error fetching S3 content:', error);
+  if (error instanceof Error) {
     setS3Content(`Error: ${error.message}`);
+  } else {
+    setS3Content('An unknown error occurred while fetching S3 content');
   }
+}
 };
 
   return (
