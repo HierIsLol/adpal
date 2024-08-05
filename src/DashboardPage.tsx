@@ -87,14 +87,6 @@ const fetchS3Content = async () => {
       }
     });
     
-    // We gebruiken geen filename meer, maar we hebben wel de username nodig
-    const response = await fetch('https://9xk13nx1mf.execute-api.us-east-1.amazonaws.com/default/s3latenzien', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
 
     if (response.ok) {
       const data = await response.json();
