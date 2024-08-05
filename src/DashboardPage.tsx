@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
-import { Storage } from 'aws-amplify';
 
 const DashboardPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -54,27 +53,26 @@ const DashboardPage: React.FC = () => {
       const generateResult = await generateResponse.json();
       setLambdaResult(JSON.stringify(generateResult, null, 2));
 
-      // Stap 2: Lees de presigned URL direct uit het bestand
-      await fetchPresignedUrl();
+      // Stap 2: Haal de presigned URL op
+      const fetchUrlResponse = await fetch('https://hju8bk24lh.execute-api.us-east-1.amazonaws.com/prod/geturl', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ username })
+      });
+
+      if (!fetchUrlResponse.ok) {
+        throw new Error(`Failed to fetch presigned URL: ${await fetchUrlResponse.text()}`);
+      }
+
+      const { presignedUrl } = await fetchUrlResponse.json();
+      setPresignedUrl(presignedUrl);
 
     } catch (error) {
       console.error('Error in generateAndFetchReport:', error);
       setError(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  };
-
-  const fetchPresignedUrl = async () => {
-    try {
-      const fileContent = await Storage.get(`${username}_latest_url.txt`, { download: true });
-      if (fileContent.Body) {
-        const url = await fileContent.Body.text();
-        setPresignedUrl(url.trim());
-      } else {
-        throw new Error('Failed to read URL file content');
-      }
-    } catch (error) {
-      console.error('Error fetching presigned URL:', error);
-      setError(`Failed to fetch report URL: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
