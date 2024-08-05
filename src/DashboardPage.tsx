@@ -4,7 +4,6 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 const DashboardPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [lambdaResult, setLambdaResult] = useState('');
-  const [s3ContentUrl, setS3ContentUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -91,22 +90,15 @@ const DashboardPage: React.FC = () => {
         const data = await response.json();
         if (data.url) {
           // Als we een URL krijgen, tonen we die in het iframe
-          setS3ContentUrl(data.url);
+          console.log('S3 Content URL:', data.url);
         } else {
-          // Anders tonen we een foutmelding
-          setS3ContentUrl(null);
-          setS3ContentUrl(`Error: Unexpected response format`);
+          console.error('Error: Unexpected response format');
         }
       } else {
         throw new Error('Failed to fetch S3 content');
       }
     } catch (error) {
       console.error('Error fetching S3 content:', error);
-      if (error instanceof Error) {
-        setS3ContentUrl(`Error: ${error.message}`);
-      } else {
-        setS3ContentUrl('An unknown error occurred while fetching S3 content');
-      }
     }
   };
 
