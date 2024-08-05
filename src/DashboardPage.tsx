@@ -16,8 +16,6 @@ const DashboardPage: React.FC = () => {
 
   useEffect(() => {
     getCurrentUser();
-    fetchS3Content();
-    fetchChartData();
   }, []);
 
   const getCurrentUser = async () => {
@@ -33,38 +31,6 @@ const DashboardPage: React.FC = () => {
     } catch (error) {
       console.error('Error getting current user:', error);
       setError('Failed to get current user');
-    }
-  };
-
-  const fetchS3Content = async () => {
-    try {
-      const { tokens } = await fetchAuthSession();
-      const token = tokens?.idToken?.toString();
-      
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
-
-      const response = await fetch('https://your-api-gateway-url.com/get-s3-content', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-      });
-      if (response.ok) {
-        const data = await response.text();
-        setS3Content(data);
-      } else {
-        throw new Error('Failed to fetch S3 content');
-      }
-    } catch (error: unknown) {
-      console.error('Error fetching S3 content:', error);
-      if (error instanceof Error) {
-        setS3Content(`Error: ${error.message}`);
-      } else {
-        setS3Content('An unknown error occurred while fetching S3 content');
-      }
     }
   };
 
@@ -89,6 +55,11 @@ const DashboardPage: React.FC = () => {
       if (response.ok) {
         const result = await response.json();
         setLambdaResult(JSON.stringify(result, null, 2));
+        
+        // Wacht 15 seconden en haal dan de S3-inhoud op
+        setTimeout(() => {
+          fetchS3Content();
+        }, 15000);
       } else {
         const errorText = await response.text();
         throw new Error(`API request failed: ${errorText}`);
@@ -103,7 +74,7 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const fetchChartData = async () => {
+  const fetchS3Content = async () => {
     try {
       const { tokens } = await fetchAuthSession();
       const token = tokens?.idToken?.toString();
@@ -112,69 +83,30 @@ const DashboardPage: React.FC = () => {
         throw new Error('No authentication token available');
       }
 
-      const response = await fetch('https://your-api-gateway-url.com/get-chart-data', {
+      const response = await fetch('https://niitq7f67k.execute-api.us-east-1.amazonaws.com/prod/get-s3-content', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
       });
-
       if (response.ok) {
-        const data: ChartDataItem[] = await response.json();
-        setChartData(data);
+        const data = await response.json();
+        setS3Content(JSON.stringify(data, null, 2));
       } else {
-        throw new Error('Failed to fetch chart data');
+        throw new Error('Failed to fetch S3 content');
       }
     } catch (error: unknown) {
-      console.error('Error fetching chart data:', error);
-      setError('Failed to fetch chart data');
-    }
-  };
-
-  const getCampaigns = async () => {
-    setError(null);
-    setCampaigns('');
-    try {
-      const { tokens } = await fetchAuthSession();
-      const token = tokens?.idToken?.toString();
-      
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
-
-      console.log('Fetching campaigns...');
-      const response = await fetch('https://tgwoxk9c6k.execute-api.us-east-1.amazonaws.com/prod/Token_ophalen', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
-  },
-  credentials: 'include', // Add this line
-  body: JSON.stringify({ username })
-});
-
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Campaigns result:', result);
-        setCampaigns(JSON.stringify(result, null, 2));
-      } else {
-        const errorText = await response.text();
-        console.error('Error response:', errorText);
-        throw new Error(`API request failed: ${errorText}`);
-      }
-    } catch (error: unknown) {
-      console.error('Error getting campaigns:', error);
+      console.error('Error fetching S3 content:', error);
       if (error instanceof Error) {
-        setError(`Error: ${error.message}`);
+        setS3Content(`Error: ${error.message}`);
       } else {
-        setError('An unknown error occurred while fetching campaigns');
+        setS3Content('An unknown error occurred while fetching S3 content');
       }
     }
   };
+
+  // ... (andere bestaande functies zoals getCampaigns)
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
@@ -185,33 +117,21 @@ const DashboardPage: React.FC = () => {
       
       <div style={{ marginBottom: '20px' }}>
         <h3>S3 Content</h3>
+        <button onClick={fetchS3Content} style={{ marginBottom: '10px' }}>Refresh S3 Content</button>
         <pre style={{ backgroundColor: '#f0f0f0', padding: '10px', borderRadius: '5px' }}>
-          {s3Content || 'Loading S3 content...'}
+          {s3Content || 'S3 content will appear here'}
         </pre>
       </div>
       
       <div style={{ marginBottom: '20px' }}>
         <h3>Lambda Function</h3>
         <button onClick={callLambdaFunction} style={{ marginBottom: '10px', marginRight: '10px' }}>Call Lambda Function</button>
-        <button onClick={getCampaigns} style={{ marginBottom: '10px' }}>Campagnes Krijgen</button>
         <pre style={{ backgroundColor: '#f0f0f0', padding: '10px', borderRadius: '5px' }}>
           {lambdaResult || 'Lambda function result will appear here'}
         </pre>
       </div>
       
-      <div style={{ marginBottom: '20px' }}>
-        <h3>Campaigns</h3>
-        <pre style={{ backgroundColor: '#f0f0f0', padding: '10px', borderRadius: '5px' }}>
-          {campaigns || 'Campaigns will appear here'}
-        </pre>
-      </div>
-      
-      <div>
-        <h3>Chart Data (JSON format)</h3>
-        <pre style={{ backgroundColor: '#f0f0f0', padding: '10px', borderRadius: '5px' }}>
-          {JSON.stringify(chartData, null, 2)}
-        </pre>
-      </div>
+      {/* ... (andere bestaande UI-elementen) */}
     </div>
   );
 };
