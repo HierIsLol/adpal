@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
-type ChartDataItem = {
-  name: string;
-  value: number;
-};
-
 const DashboardPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [s3Content, setS3Content] = useState('');
   const [lambdaResult, setLambdaResult] = useState('');
-  const [campaigns, setCampaigns] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -105,8 +99,6 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  // ... (andere bestaande functies zoals getCampaigns)
-
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1>Dashboard</h1>
@@ -129,8 +121,6 @@ const DashboardPage: React.FC = () => {
           {lambdaResult || 'Lambda function result will appear here'}
         </pre>
       </div>
-      
-      {/* ... (andere bestaande UI-elementen) */}
     </div>
   );
 };
