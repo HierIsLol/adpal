@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
-const DashboardPage: React.FC = () => {
+const DashboardPage = () => {
   const [username, setUsername] = useState('');
   const [lambdaResult, setLambdaResult] = useState('');
   const [presignedUrl, setPresignedUrl] = useState('');
@@ -27,7 +27,7 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const callStepFunction = async () => {
+  const callLambdaFunction = async () => {
     try {
       const { tokens } = await fetchAuthSession();
       const token = tokens?.idToken?.toString();
@@ -36,7 +36,7 @@ const DashboardPage: React.FC = () => {
         throw new Error('No authentication token available');
       }
 
-      console.log('Calling Step Function...');
+      console.log('Calling Lambda function...');
       const response = await fetch('https://niitq7f67k.execute-api.us-east-1.amazonaws.com/prod/trigger', {
         method: 'POST',
         headers: {
@@ -52,19 +52,40 @@ const DashboardPage: React.FC = () => {
         console.log('Parsed result:', result);
         setLambdaResult(JSON.stringify(result, null, 2));
         
-        if (result.presignedUrlResult && result.presignedUrlResult.body) {
-          const bodyObj = JSON.parse(result.presignedUrlResult.body);
-          if (bodyObj.presignedUrl) {
-            console.log('Setting presigned URL:', bodyObj.presignedUrl);
-            setPresignedUrl(bodyObj.presignedUrl);
+        if (typeof result === 'string') {
+          // Als de result een string is, probeer het te parsen
+          try {
+            const parsedResult = JSON.parse(result);
+            console.log('Parsed string result:', parsedResult);
+            if (parsedResult.presignedUrl) {
+              setPresignedUrl(parsedResult.presignedUrl);
+            }
+          } catch (e) {
+            console.error('Failed to parse result string:', e);
           }
+        } else if (result.body) {
+          // Als result een object is met een body property
+          try {
+            const bodyObj = JSON.parse(result.body);
+            console.log('Parsed body object:', bodyObj);
+            if (bodyObj.presignedUrl) {
+              setPresignedUrl(bodyObj.presignedUrl);
+            }
+          } catch (e) {
+            console.error('Failed to parse result.body:', e);
+          }
+        } else if (result.presignedUrl) {
+          // Als de presignedUrl direct beschikbaar is in het result object
+          setPresignedUrl(result.presignedUrl);
         }
+        
+        console.log('Final presignedUrl state:', presignedUrl);
       } else {
         const errorText = await response.text();
         throw new Error(`API request failed: ${errorText}`);
       }
     } catch (error) {
-      console.error('Error calling Step Function:', error);
+      console.error('Error calling Lambda function:', error);
       setLambdaResult(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
@@ -91,10 +112,10 @@ const DashboardPage: React.FC = () => {
       </div>
       
       <div style={{ marginBottom: '20px' }}>
-        <h3>Step Function</h3>
-        <button onClick={callStepFunction} style={{ marginBottom: '10px' }}>Generate Report</button>
+        <h3>Lambda Function</h3>
+        <button onClick={callLambdaFunction} style={{ marginBottom: '10px' }}>Generate Report</button>
         <pre style={{ backgroundColor: '#f0f0f0', padding: '10px', borderRadius: '5px' }}>
-          {lambdaResult || 'Step Function result will appear here'}
+          {lambdaResult || 'Lambda function result will appear here'}
         </pre>
       </div>
     </div>
