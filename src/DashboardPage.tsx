@@ -51,6 +51,7 @@ const DashboardPage: React.FC = () => {
       }
 
       const generateResult = await generateResponse.json();
+      console.log('Generate report result:', generateResult);
       setLambdaResult(JSON.stringify(generateResult, null, 2));
 
       // Stap 2: Haal de presigned URL op
@@ -67,8 +68,9 @@ const DashboardPage: React.FC = () => {
         throw new Error(`Failed to fetch presigned URL: ${await fetchUrlResponse.text()}`);
       }
 
-      const { presignedUrl } = await fetchUrlResponse.json();
-      setPresignedUrl(presignedUrl);
+      const fetchUrlResult = await fetchUrlResponse.json();
+      console.log('Fetched presigned URL:', fetchUrlResult);
+      setPresignedUrl(fetchUrlResult.presignedUrl);
 
     } catch (error) {
       console.error('Error in generateAndFetchReport:', error);
