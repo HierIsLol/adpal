@@ -6,6 +6,9 @@ const DashboardPage: React.FC = () => {
   const [lambdaResult, setLambdaResult] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  // Vervang deze URL door de daadwerkelijk gegenereerde pre-signed URL
+  const presignedUrl = 'https://advertiser-performance-website.s3.us-east-1.amazonaws.com/54984478-1031-70bb-55f1-7d6a47775c95_index.html?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEOn%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQD38wLIcUK5qzZxhcR%2B3X3FQaA69FngpquiKuP0AdjcUAIhANlDljyXu62kSm0ABIHVQU%2BvUV1FuohNvjL%2BhpvJazRCKu0CCNH%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQABoMMzgxNDkxODU3OTUzIgwpOAcLyee%2F8Vp9EEcqwQIXZT8%2Ba2jKt98pO5x0Byo7L2bR9yH%2BN7M9FacMy%2BBCNjNzUdVGhsODx1rmd9UCIquQ8rvT%2FNX4OP5DrxinIxJaBh9GJSUrW9XsUWLSVdgxcoEEtnEuwaIgG%2BMTQHG2o3OXnmPRDoE6wNUmsT8K435lo2TNnl23xkgcmCRifCFLKNhVKzZJ2pnLUUbpXyRo%2BqUZmJByZNv5FGTz91eKGH4Sq30qiRe2A4ncVNECQ8HdVE6pU5RVJYxN%2BSd38ahkNdzFf5IWGNEm0dC3H9xrlyJuH3xpg%2BySwY0tTiehd3ce062fpjnOKnM%2FE9WvkZmxDmTAuJ%2BTmZQQlXqO9wu%2BKqD%2FvaJbzdmqt7lNfF7TRb%2FI3VBDShAudC8yTpvGGz1z%2FItX7xWsWlbDV4ZzVQ6fr9OwDDGThhgGV2wt39ahmw2CAXUw%2Fo%2FCtQY6sgIZmTbqB6Uw%2F5Hr8xdxstc5e%2Bq52sMlfSg8jzLClLxtj0AlwGoxJwbK%2FfHpEXaWbFJfuOGodAVMNBeJjpS5CrNVRUSEBqCBQ843%2BvYu8%2Fv1FNtGDxZlFKQqIfkJ7z1Nf%2Fo0yl%2FLyiLxjtB5IuobspgUR%2BUchWgO6DZI9DU5Ct6l5zs7FOVr2GvMRwae%2F96u9HX8%2BblRilZNueAWLgsnJbpeNP2y8kYjNjVqYcKNEUHBRAE0sEgd4LzBNw1W7nuAuJvTyRXxlACXbgiXPX8T2k4%2FmgNrIZ7Sm9Dzxf3fgKD4fXspFwDaOVmgYiYA8%2F2xJDfli5mj61O6mKEvpCVNyQq2h2L9ixoJrLyd0ACd%2B07B89fJILBFR8OAN9b0ITC0bPlIwcoJnPy5FWu8Jb655Ei%2FWd8%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20240805T155227Z&X-Amz-SignedHeaders=host&X-Amz-Expires=7200&X-Amz-Credential=ASIAVRUVPZIQWPT22O46%2F20240805%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=fc79605d56a14094408efe850b1a32679099d239925e11de89ab674a113fa8f8';
+
   useEffect(() => {
     getCurrentUser();
   }, []);
@@ -89,7 +92,6 @@ const DashboardPage: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         if (data.url) {
-          // Als we een URL krijgen, tonen we die in het iframe
           console.log('S3 Content URL:', data.url);
         } else {
           console.error('Error: Unexpected response format');
@@ -112,7 +114,7 @@ const DashboardPage: React.FC = () => {
       <div style={{ marginBottom: '20px' }}>
         <h3>S3 Content</h3>
         <iframe 
-          src="https://advertiser-performance-website.s3.us-east-1.amazonaws.com/54984478-1031-70bb-55f1-7d6a47775c95_index.html?response-content-disposition=inline&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEOn%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQD38wLIcUK5qzZxhcR%2B3X3FQaA69FngpquiKuP0AdjcUAIhANlDljyXu62kSm0ABIHVQU%2BvUV1FuohNvjL%2BhpvJazRCKu0CCNH%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQABoMMzgxNDkxODU3OTUzIgwpOAcLyee%2F8Vp9EEcqwQIXZT8%2Ba2jKt98pO5x0Byo7L2bR9yH%2BN7M9FacMy%2BBCNjNzUdVGhsODx1rmd9UCIquQ8rvT%2FNX4OP5DrxinIxJaBh9GJSUrW9XsUWLSVdgxcoEEtnEuwaIgG%2BMTQHG2o3OXnmPRDoE6wNUmsT8K435lo2TNnl23xkgcmCRifCFLKNhVKzZJ2pnLUUbpXyRo%2BqUZmJByZNv5FGTz91eKGH4Sq30qiRe2A4ncVNECQ8HdVE6pU5RVJYxN%2BSd38ahkNdzFf5IWGNEm0dC3H9xrlyJuH3xpg%2BySwY0tTiehd3ce062fpjnOKnM%2FE9WvkZmxDmTAuJ%2BTmZQQlXqO9wu%2BKqD%2FvaJbzdmqt7lNfF7TRb%2FI3VBDShAudC8yTpvGGz1z%2FItX7xWsWlbDV4ZzVQ6fr9OwDDGThhgGV2wt39ahmw2CAXUw%2Fo%2FCtQY6sgIZmTbqB6Uw%2F5Hr8xdxstc5e%2Bq52sMlfSg8jzLClLxtj0AlwGoxJwbK%2FfHpEXaWbFJfuOGodAVMNBeJjpS5CrNVRUSEBqCBQ843%2BvYu8%2Fv1FNtGDxZlFKQqIfkJ7z1Nf%2Fo0yl%2FLyiLxjtB5IuobspgUR%2BUchWgO6DZI9DU5Ct6l5zs7FOVr2GvMRwae%2F96u9HX8%2BblRilZNueAWLgsnJbpeNP2y8kYjNjVqYcKNEUHBRAE0sEgd4LzBNw1W7nuAuJvTyRXxlACXbgiXPX8T2k4%2FmgNrIZ7Sm9Dzxf3fgKD4fXspFwDaOVmgYiYA8%2F2xJDfli5mj61O6mKEvpCVNyQq2h2L9ixoJrLyd0ACd%2B07B89fJILBFR8OAN9b0ITC0bPlIwcoJnPy5FWu8Jb655Ei%2FWd8%3D"
+          src={presignedUrl}
           width="100%"
           height="600px"
           title="S3 Content"
