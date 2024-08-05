@@ -52,34 +52,22 @@ const DashboardPage = () => {
         console.log('Parsed result:', result);
         setLambdaResult(JSON.stringify(result, null, 2));
         
-        if (typeof result === 'string') {
-          // Als de result een string is, probeer het te parsen
-          try {
-            const parsedResult = JSON.parse(result);
-            console.log('Parsed string result:', parsedResult);
-            if (parsedResult.presignedUrl) {
-              setPresignedUrl(parsedResult.presignedUrl);
-            }
-          } catch (e) {
-            console.error('Failed to parse result string:', e);
-          }
-        } else if (result.body) {
-          // Als result een object is met een body property
+        // Extracting presignedUrl from Step Function output
+        if (result.body) {
           try {
             const bodyObj = JSON.parse(result.body);
             console.log('Parsed body object:', bodyObj);
             if (bodyObj.presignedUrl) {
               setPresignedUrl(bodyObj.presignedUrl);
+              console.log('Set presigned URL to:', bodyObj.presignedUrl);
+            } else if (bodyObj.executionArn) {
+              // If we have an executionArn, we need to poll for the result
+              await pollStepFunctionExecution(bodyObj.executionArn);
             }
           } catch (e) {
-            console.error('Failed to parse result.body:', e);
+            console.error('Error parsing result body:', e);
           }
-        } else if (result.presignedUrl) {
-          // Als de presignedUrl direct beschikbaar is in het result object
-          setPresignedUrl(result.presignedUrl);
         }
-        
-        console.log('Final presignedUrl state:', presignedUrl);
       } else {
         const errorText = await response.text();
         throw new Error(`API request failed: ${errorText}`);
@@ -88,6 +76,14 @@ const DashboardPage = () => {
       console.error('Error calling Lambda function:', error);
       setLambdaResult(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+  };
+
+  const pollStepFunctionExecution = async (executionArn: string) => {
+    // Implement polling logic here
+    // This is a placeholder and needs to be implemented based on your backend setup
+    console.log('Polling Step Function execution:', executionArn);
+    // You would typically make API calls here to check the status of the Step Function
+    // and retrieve the final result when it's complete
   };
 
   return (
