@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { fromCognitoIdentityPool } from '@aws-sdk/credential-providers';
 
 const DashboardPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [processStatus, setProcessStatus] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [fileContent, setFileContent] = useState<string | null>(null);
 
   useEffect(() => {
     getCurrentUser();
@@ -93,9 +96,9 @@ const DashboardPage: React.FC = () => {
         }
 
         if (statusData.status === 'COMPLETED') {
-          setProcessStatus('Report generation completed.');
+          setProcessStatus('Report generation completed. Fetching file content...');
+          await fetchFileContent();
           setIsLoading(false);
-          // Here you would typically fetch and display the report
         } else if (statusData.status === 'ERROR') {
           throw new Error(`Report generation failed: ${statusData.error || 'Unknown error'}`);
         } else {
@@ -117,6 +120,38 @@ const DashboardPage: React.FC = () => {
     await checkStatus();
   };
 
+  const fetchFileContent = async () => {
+    try {
+      const { credentials } = await fetchAuthSession();
+      
+      const s3Client = new S3Client({
+        region: 'us-east-1',
+        credentials: fromCognitoIdentityPool({
+          clientConfig: { region: 'us-east-1' },
+          identityPoolId: 'your-identity-pool-id', // Replace with your actual Identity Pool ID
+        }),
+      });
+
+      const command = new GetObjectCommand({
+        Bucket: 'advertiser-performance-website',
+        Key: '54984478-1031-70bb-55f1-7d6a47775c95_latest_url.txt',
+      });
+
+      const response = await s3Client.send(command);
+      const content = await response.Body?.transformToString();
+      
+      if (content) {
+        setFileContent(content);
+        setProcessStatus('File content loaded successfully.');
+      } else {
+        throw new Error('File content is empty');
+      }
+    } catch (error) {
+      console.error('Error fetching file content:', error);
+      setError(`Error fetching file content: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1>Dashboard</h1>
@@ -132,6 +167,14 @@ const DashboardPage: React.FC = () => {
           {isLoading ? 'Processing...' : 'Generate and Fetch Report'}
         </button>
       </div>
+      {fileContent && (
+        <div style={{ marginTop: '20px' }}>
+          <h3>File Content</h3>
+          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', backgroundColor: '#f0f0f0', padding: '10px', borderRadius: '5px' }}>
+            {fileContent}
+          </pre>
+        </div>
+      )}
     </div>
   );
 };
