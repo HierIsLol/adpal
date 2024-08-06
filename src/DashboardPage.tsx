@@ -4,7 +4,6 @@ import { fetchAuthSession } from 'aws-amplify/auth';
 const DashboardPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [lambdaResult, setLambdaResult] = useState('');
-  const [presignedUrl, setPresignedUrl] = useState('');
   const [fileContent, setFileContent] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,10 +69,10 @@ const DashboardPage: React.FC = () => {
       const fetchUrlResult = await fetchUrlResponse.json();
       console.log('Fetched presigned URL:', fetchUrlResult);
       const parsedResult = JSON.parse(fetchUrlResult.body);
-      setPresignedUrl(parsedResult.presignedUrl);
+      const presignedUrl = parsedResult.presignedUrl;
 
-      // Stap 3: Haal de inhoud van het bestand op
-      const fileResponse = await fetch(parsedResult.presignedUrl);
+      // Stap 3: Haal de inhoud van het bestand op met de presigned URL
+      const fileResponse = await fetch(presignedUrl);
       if (!fileResponse.ok) {
         throw new Error(`Failed to fetch file content: ${await fileResponse.text()}`);
       }
