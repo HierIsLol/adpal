@@ -6,7 +6,7 @@ const DashboardPage: React.FC = () => {
   const [lambdaResult, setLambdaResult] = useState('');
   const [presignedUrl, setPresignedUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
-
+ 
   useEffect(() => {
     getCurrentUser();
   }, []);
