@@ -89,6 +89,7 @@ const DashboardPage: React.FC = () => {
         <h3>Report Content</h3>
         {presignedUrl ? (
           <iframe
+            key={presignedUrl} // Force iframe to reload when URL changes
             src={presignedUrl}
             width="100%"
             height="600px"
