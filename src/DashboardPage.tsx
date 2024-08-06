@@ -70,7 +70,8 @@ const DashboardPage: React.FC = () => {
 
       const fetchUrlResult = await fetchUrlResponse.json();
       console.log('Fetched presigned URL:', fetchUrlResult);
-      setPresignedUrl(fetchUrlResult.presignedUrl);
+      const parsedResult = JSON.parse(fetchUrlResult.body);
+      setPresignedUrl(parsedResult.presignedUrl);
 
     } catch (error) {
       console.error('Error in generateAndFetchReport:', error);
