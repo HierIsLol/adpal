@@ -122,7 +122,6 @@ const DashboardPage: React.FC = () => {
 
   const fetchFileContent = async () => {
     try {
-      const { credentials } = await fetchAuthSession();
       
       const s3Client = new S3Client({
         region: 'us-east-1',
