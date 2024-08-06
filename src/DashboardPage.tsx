@@ -54,8 +54,8 @@ const DashboardPage: React.FC = () => {
       console.log('Generate report result:', generateResult);
       setLambdaResult(JSON.stringify(generateResult, null, 2));
 
-      // Stap 2: Haal de presigned URL op
-      const fetchUrlResponse = await fetch('https://hju8bk24lh.execute-api.us-east-1.amazonaws.com/prod/geturl', {
+      // Stap 2: Haal de bestandsinhoud op via de backend
+      const fetchContentResponse = await fetch('https://hju8bk24lh.execute-api.us-east-1.amazonaws.com/prod/geturl', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -63,21 +63,11 @@ const DashboardPage: React.FC = () => {
         },
         body: JSON.stringify({ username })
       });
-      if (!fetchUrlResponse.ok) {
-        throw new Error(`Failed to fetch presigned URL: ${await fetchUrlResponse.text()}`);
+      if (!fetchContentResponse.ok) {
+        throw new Error(`Failed to fetch report content: ${await fetchContentResponse.text()}`);
       }
-      const fetchUrlResult = await fetchUrlResponse.json();
-      console.log('Fetched presigned URL:', fetchUrlResult);
-      const parsedResult = JSON.parse(fetchUrlResult.body);
-      const presignedUrl = parsedResult.presignedUrl;
-
-      // Stap 3: Haal de inhoud van het bestand op met de presigned URL
-      const fileResponse = await fetch(presignedUrl);
-      if (!fileResponse.ok) {
-        throw new Error(`Failed to fetch file content: ${await fileResponse.text()}`);
-      }
-      const fileText = await fileResponse.text();
-      setFileContent(fileText);
+      const content = await fetchContentResponse.text();
+      setFileContent(content);
     } catch (error) {
       console.error('Error in generateAndFetchReport:', error);
       setError(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -96,9 +86,7 @@ const DashboardPage: React.FC = () => {
         {isLoading ? (
           <p>Loading...</p>
         ) : fileContent ? (
-          <pre style={{ backgroundColor: '#f0f0f0', padding: '10px', borderRadius: '5px', whiteSpace: 'pre-wrap' }}>
-            {fileContent}
-          </pre>
+          <div dangerouslySetInnerHTML={{ __html: fileContent }} />
         ) : (
           <p>No content available. Generate a report first.</p>
         )}
