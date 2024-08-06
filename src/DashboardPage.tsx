@@ -78,6 +78,12 @@ const DashboardPage: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (presignedUrl) {
+      console.log('Updating iframe with presigned URL:', presignedUrl);
+    }
+  }, [presignedUrl]);
+
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1>Dashboard</h1>
