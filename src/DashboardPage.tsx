@@ -54,24 +54,48 @@ const DashboardPage: React.FC = () => {
       console.log('Generate report result:', generateResult);
       setLambdaResult(JSON.stringify(generateResult, null, 2));
 
-      // Stap 2: Haal de bestandsinhoud op via de backend
-      const fetchContentResponse = await fetch('https://hju8bk24lh.execute-api.us-east-1.amazonaws.com/prod/geturl', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ username })
-      });
-      if (!fetchContentResponse.ok) {
-        throw new Error(`Failed to fetch report content: ${await fetchContentResponse.text()}`);
-      }
-      const content = await fetchContentResponse.text();
-      setFileContent(content);
+      // Stap 2: Poll voor de bestandsinhoud
+      let attempts = 0;
+      const maxAttempts = 10;
+      const pollInterval = 5000; // 5 seconden
+
+      const pollForContent = async () => {
+        try {
+          const fetchContentResponse = await fetch('https://hju8bk24lh.execute-api.us-east-1.amazonaws.com/prod/geturl', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ username })
+          });
+
+          if (fetchContentResponse.ok) {
+            const content = await fetchContentResponse.text();
+            if (content && content !== 'File not ready') {
+              setFileContent(content);
+              setIsLoading(false);
+              return;
+            }
+          }
+
+          attempts++;
+          if (attempts < maxAttempts) {
+            setTimeout(pollForContent, pollInterval);
+          } else {
+            throw new Error('Max attempts reached. Report generation timed out.');
+          }
+        } catch (error) {
+          console.error('Error in pollForContent:', error);
+          setError(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          setIsLoading(false);
+        }
+      };
+
+      pollForContent();
     } catch (error) {
       console.error('Error in generateAndFetchReport:', error);
       setError(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -84,7 +108,7 @@ const DashboardPage: React.FC = () => {
       <div style={{ marginBottom: '20px' }}>
         <h3>Report Content</h3>
         {isLoading ? (
-          <p>Loading...</p>
+          <p>Loading... This may take up to a minute.</p>
         ) : fileContent ? (
           <div dangerouslySetInnerHTML={{ __html: fileContent }} />
         ) : (
