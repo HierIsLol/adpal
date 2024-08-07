@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
-import { Authenticator, AuthEventData } from '@aws-amplify/ui-react';
+import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import StoreLinkPage from './StoreLinkPage';
 import DashboardPage from './DashboardPage';
