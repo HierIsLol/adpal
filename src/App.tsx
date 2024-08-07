@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
@@ -6,46 +6,47 @@ import StoreLinkPage from './StoreLinkPage';
 import DashboardPage from './DashboardPage';
 import ProfilePage from './ProfilePage';
 
-const HamburgerMenu = ({ isOpen, toggleMenu, signOut }: { isOpen: boolean; toggleMenu: () => void; signOut: () => void }) => (
-  <div style={{
-    position: 'fixed',
-    top: 0,
-    right: isOpen ? 0 : '-250px',
-    width: '250px',
-    height: '100%',
-    backgroundColor: '#f8f8f8',
-    transition: 'right 0.3s ease-in-out',
-    boxShadow: '-2px 0 5px rgba(0,0,0,0.1)',
-    zIndex: 1000
-  }}>
-    <button onClick={toggleMenu} style={{
-      position: 'absolute',
-      top: '10px',
-      right: '10px',
-      background: 'none',
-      border: 'none',
-      fontSize: '24px',
-      cursor: 'pointer'
+const HamburgerMenu: React.FC<{ isOpen: boolean; toggleMenu: () => void; signOut: () => void }> = ({ isOpen, toggleMenu, signOut }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      right: 0,
+      width: '250px',
+      height: '100%',
+      backgroundColor: '#f8f8f8',
+      boxShadow: '-2px 0 5px rgba(0,0,0,0.1)',
+      zIndex: 1000,
+      padding: '20px',
+      boxSizing: 'border-box',
     }}>
-      ✕
-    </button>
-    <nav style={{ padding: '50px 20px' }}>
-      <ul style={{ listStyle: 'none', padding: 0 }}>
-        <li style={{ marginBottom: '10px' }}><Link to="/" style={{ textDecoration: 'none', color: '#333' }} onClick={toggleMenu}>Home</Link></li>
-        <li style={{ marginBottom: '10px' }}><Link to="/profile" style={{ textDecoration: 'none', color: '#333' }} onClick={toggleMenu}>Profiel</Link></li>
-        <li style={{ marginBottom: '10px' }}><Link to="/store-link" style={{ textDecoration: 'none', color: '#333' }} onClick={toggleMenu}>Koppel Store</Link></li>
-        <li style={{ marginBottom: '10px' }}><Link to="/dashboard" style={{ textDecoration: 'none', color: '#333' }} onClick={toggleMenu}>Dashboard</Link></li>
-        <li><button onClick={() => { signOut(); toggleMenu(); }} style={{ background: 'none', border: 'none', color: '#333', cursor: 'pointer', padding: 0, font: 'inherit' }}>Uitloggen</button></li>
-      </ul>
-    </nav>
-  </div>
-);
+      <button onClick={toggleMenu} style={{
+        position: 'absolute',
+        top: '10px',
+        right: '10px',
+        background: 'none',
+        border: 'none',
+        fontSize: '24px',
+        cursor: 'pointer'
+      }}>
+        ✕
+      </button>
+      <nav style={{ marginTop: '50px' }}>
+        <ul style={{ listStyle: 'none', padding: 0 }}>
+          <li style={{ marginBottom: '15px' }}><Link to="/" style={{ textDecoration: 'none', color: '#333', fontSize: '18px' }} onClick={toggleMenu}>Home</Link></li>
+          <li style={{ marginBottom: '15px' }}><Link to="/profile" style={{ textDecoration: 'none', color: '#333', fontSize: '18px' }} onClick={toggleMenu}>Profiel</Link></li>
+          <li style={{ marginBottom: '15px' }}><Link to="/store-link" style={{ textDecoration: 'none', color: '#333', fontSize: '18px' }} onClick={toggleMenu}>Koppel Store</Link></li>
+          <li style={{ marginBottom: '15px' }}><Link to="/dashboard" style={{ textDecoration: 'none', color: '#333', fontSize: '18px' }} onClick={toggleMenu}>Dashboard</Link></li>
+          <li><button onClick={() => { signOut(); toggleMenu(); }} style={{ background: 'none', border: 'none', color: '#333', cursor: 'pointer', padding: 0, font: 'inherit', fontSize: '18px' }}>Uitloggen</button></li>
+        </ul>
+      </nav>
+    </div>
+  );
+};
 
-interface HomePageProps {
-  user: any;
-}
-
-const HomePage = ({ user }: HomePageProps) => {
+const HomePage: React.FC<{ user: any }> = ({ user }) => {
   return (
     <div style={{ textAlign: 'center', paddingTop: '20px' }}>
       <img 
@@ -69,12 +70,7 @@ const HomePage = ({ user }: HomePageProps) => {
   );
 };
 
-interface AppContentProps {
-  signOut: () => void;
-  user: any;
-}
-
-const AppContent = ({ signOut, user }: AppContentProps) => {
+const AppContent: React.FC<{ signOut: () => void; user: any }> = ({ signOut, user }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
