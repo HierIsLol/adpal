@@ -11,6 +11,7 @@ const DashboardPage: React.FC = () => {
     getCurrentUser();
   }, []);
 
+  
   const getCurrentUser = async () => {
     try {
       const { tokens } = await fetchAuthSession();
