@@ -1,18 +1,55 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import StoreLinkPage from './StoreLinkPage';
 import DashboardPage from './DashboardPage';
 import ProfilePage from './ProfilePage';
 
-interface HomePageProps {
-  user: any;
-}
+const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-const HomePage: React.FC<HomePageProps> = ({ user }) => {
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
   return (
-    <div style={{ textAlign: 'center', paddingTop: '20px' }}>
+    <div style={{ textAlign: 'center', paddingTop: '20px', position: 'relative' }}>
+      <button onClick={toggleMenu} style={{
+        position: 'absolute',
+        top: '10px',
+        left: '10px',
+        fontSize: '24px',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer'
+      }}>
+        ☰
+      </button>
+      
+      {isMenuOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '250px',
+          height: '100%',
+          backgroundColor: '#f8f8f8',
+          zIndex: 1000,
+          padding: '20px',
+          boxShadow: '2px 0 5px rgba(0,0,0,0.1)'
+        }}>
+          <button onClick={toggleMenu} style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', fontSize: '18px' }}>✕</button>
+          <nav>
+            <ul style={{ listStyle: 'none', padding: 0 }}>
+              <li style={{ margin: '10px 0' }}><Link to="/" style={{ textDecoration: 'none', color: '#333' }} onClick={toggleMenu}>Home</Link></li>
+              <li style={{ margin: '10px 0' }}><Link to="/profile" style={{ textDecoration: 'none', color: '#333' }} onClick={toggleMenu}>Profiel</Link></li>
+              <li style={{ margin: '10px 0' }}><Link to="/store-link" style={{ textDecoration: 'none', color: '#333' }} onClick={toggleMenu}>Koppel Store</Link></li>
+              <li style={{ margin: '10px 0' }}><Link to="/dashboard" style={{ textDecoration: 'none', color: '#333' }} onClick={toggleMenu}>Dashboard</Link></li>
+              <li style={{ margin: '10px 0' }}><button onClick={signOut} style={{ background: 'none', border: 'none', color: '#333', cursor: 'pointer', padding: 0, fontSize: '16px' }}>Uitloggen</button></li>
+            </ul>
+          </nav>
+        </div>
+      )}
+
       <img 
         src="https://i.postimg.cc/Mp8Whhmw/Ad-Pal-logo-no-white.png" 
         style={{ width: '188px', height: '188px', margin: '0 auto', display: 'block' }} 
@@ -34,86 +71,19 @@ const HomePage: React.FC<HomePageProps> = ({ user }) => {
   );
 };
 
-interface AppContentProps {
-  signOut: () => void;
-  user: any;
-}
-
-const AppContent: React.FC<AppContentProps> = ({ signOut, user }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const location = useLocation();
-
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-
-  return (
-    <div style={{ display: 'flex' }}>
-      {/* Hamburger Menu */}
-      <div style={{
-        width: isMenuOpen ? '250px' : '0',
-        height: '100vh',
-        backgroundColor: '#f8f8f8',
-        transition: 'width 0.3s ease-in-out',
-        overflow: 'hidden',
-        position: 'fixed',
-        zIndex: 1000,
-      }}>
-        <nav style={{ padding: '50px 20px' }}>
-          <ul style={{ listStyle: 'none', padding: 0 }}>
-            <li style={{ marginBottom: '15px' }}><Link to="/" style={{ textDecoration: 'none', color: '#333', fontSize: '18px' }} onClick={toggleMenu}>Home</Link></li>
-            <li style={{ marginBottom: '15px' }}><Link to="/profile" style={{ textDecoration: 'none', color: '#333', fontSize: '18px' }} onClick={toggleMenu}>Profiel</Link></li>
-            <li style={{ marginBottom: '15px' }}><Link to="/store-link" style={{ textDecoration: 'none', color: '#333', fontSize: '18px' }} onClick={toggleMenu}>Koppel Store</Link></li>
-            <li style={{ marginBottom: '15px' }}><Link to="/dashboard" style={{ textDecoration: 'none', color: '#333', fontSize: '18px' }} onClick={toggleMenu}>Dashboard</Link></li>
-            <li><button onClick={signOut} style={{ background: 'none', border: 'none', color: '#333', cursor: 'pointer', padding: 0, font: 'inherit', fontSize: '18px' }}>Uitloggen</button></li>
-          </ul>
-        </nav>
-      </div>
-
-      {/* Main Content */}
-      <main style={{ flexGrow: 1, marginLeft: isMenuOpen ? '250px' : '0', transition: 'margin-left 0.3s ease-in-out', minHeight: '100vh', position: 'relative' }}>
-        <button onClick={toggleMenu} style={{
-          position: 'fixed',
-          top: '10px',
-          left: '10px',
-          zIndex: 1001,
-          background: 'none',
-          border: 'none',
-          fontSize: '24px',
-          cursor: 'pointer'
-        }}>
-          ☰
-        </button>
-        {location.pathname !== '/' && (
-          <Link to="/" style={{ position: 'fixed', top: '10px', right: '10px', textDecoration: 'none', zIndex: 1001 }}>
-            <button style={{ fontSize: '16px', padding: '5px 10px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white' }}>
-              Terug naar Home
-            </button>
-          </Link>
-        )}
-        <Routes>
-          <Route path="/" element={<HomePage user={user} />} />
-          <Route path="/store-link" element={<StoreLinkPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </main>
-    </div>
-  );
-};
-
 function App() {
   return (
     <Router>
       <Authenticator>
-        {({ signOut, user }) => {
-          const handleSignOut = () => {
-            if (signOut) {
-              signOut();
-            }
-          };
-          
-          return <AppContent signOut={handleSignOut} user={user} />;
-        }}
+        {({ signOut, user }) => (
+          <Routes>
+            <Route path="/" element={<HomePage user={user} signOut={signOut || (() => {})} />} />
+            <Route path="/store-link" element={<StoreLinkPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        )}
       </Authenticator>
     </Router>
   );
