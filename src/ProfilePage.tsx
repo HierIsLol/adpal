@@ -16,10 +16,21 @@ const ProfilePage: React.FC = () => {
   const [vatNumber, setVatNumber] = useState('');
   const [message, setMessage] = useState('');
   const [username, setUsername] = useState('');
+  const [popupMessage, setPopupMessage] = useState('');
 
   useEffect(() => {
     getCurrentUser();
   }, []);
+
+  useEffect(() => {
+    if (firstName === 'Damiën') {
+      setPopupMessage('The GOD!');
+    } else if (firstName === 'Janai') {
+      setPopupMessage('Ga eens werken!! Regel al die shit');
+    } else {
+      setPopupMessage('');
+    }
+  }, [firstName]);
 
   const getCurrentUser = async () => {
     try {
@@ -91,6 +102,7 @@ const ProfilePage: React.FC = () => {
     padding: '20px',
     boxSizing: 'border-box' as 'border-box',
     fontFamily: 'Arial, sans-serif',
+    position: 'relative' as 'relative',
   };
 
   const headerStyle = {
@@ -132,8 +144,28 @@ const ProfilePage: React.FC = () => {
     fontWeight: 'bold' as 'bold',
   };
 
+  const popupStyle = {
+    position: 'fixed' as 'fixed',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    color: 'white',
+    padding: '20px',
+    borderRadius: '10px',
+    fontSize: '24px',
+    fontWeight: 'bold' as 'bold',
+    zIndex: 1000,
+    textAlign: 'center' as 'center',
+  };
+
   return (
     <div style={containerStyle}>
+      {popupMessage && (
+        <div style={popupStyle}>
+          {popupMessage}
+        </div>
+      )}
       <div style={headerStyle}>
         <h1 style={titleStyle}>Profiel</h1>
         <a href="/home" style={backButtonStyle}>Terug naar Home</a>
