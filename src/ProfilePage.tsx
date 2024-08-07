@@ -97,36 +97,34 @@ const ProfilePage: React.FC = () => {
 
   const containerStyle = {
     width: '100%',
-    maxWidth: '600px',
+    maxWidth: '1200px',
     margin: '0 auto',
     padding: '20px',
     boxSizing: 'border-box' as 'border-box',
     fontFamily: 'Arial, sans-serif',
-    position: 'relative' as 'relative',
+    paddingTop: '200px', // Verhoogd om de inhoud nog lager te beginnen
   };
 
   const headerStyle = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '30px',
-    paddingTop: '60px',
-  };
-
-  const backButtonStyle = {
-    padding: '10px 15px',
-    backgroundColor: '#003366',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    textDecoration: 'none',
-    fontSize: '14px',
+    marginBottom: '50px',
+    textAlign: 'center' as 'center',
   };
 
   const titleStyle = {
     fontSize: '24px',
     color: '#003366',
     margin: 0,
+  };
+
+  const formStyle = {
+    display: 'flex',
+    flexWrap: 'wrap' as 'wrap',
+    gap: '20px',
+  };
+
+  const columnStyle = {
+    flex: '1 1 calc(50% - 10px)',
+    minWidth: '300px',
   };
 
   const inputStyle = {
@@ -168,138 +166,141 @@ const ProfilePage: React.FC = () => {
       )}
       <div style={headerStyle}>
         <h1 style={titleStyle}>Profiel</h1>
-        <a href="/home" style={backButtonStyle}>Terug naar Home</a>
       </div>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="firstName" style={labelStyle}>Voornaam:</label>
-        <input
-          id="firstName"
-          type="text"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-          style={inputStyle}
-          required
-        />
+      <form onSubmit={handleSubmit} style={formStyle}>
+        <div style={columnStyle}>
+          <label htmlFor="firstName" style={labelStyle}>Voornaam:</label>
+          <input
+            id="firstName"
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            style={inputStyle}
+            required
+          />
 
-        <label htmlFor="lastName" style={labelStyle}>Achternaam:</label>
-        <input
-          id="lastName"
-          type="text"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-          style={inputStyle}
-          required
-        />
+          <label htmlFor="lastName" style={labelStyle}>Achternaam:</label>
+          <input
+            id="lastName"
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            style={inputStyle}
+            required
+          />
 
-        <label htmlFor="email" style={labelStyle}>E-mail:</label>
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          style={inputStyle}
-          required
-        />
+          <label htmlFor="email" style={labelStyle}>E-mail:</label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={inputStyle}
+            required
+          />
 
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-          <div style={{ width: '30%' }}>
-            <label htmlFor="countryCode" style={labelStyle}>Landcode:</label>
-            <select
-              id="countryCode"
-              value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value)}
-              style={{ ...inputStyle, marginBottom: 0 }}
-            >
-              <option value="+31">🇳🇱 +31</option>
-              <option value="+32">🇧🇪 +32</option>
-              <option value="+49">🇩🇪 +49</option>
-            </select>
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+            <div style={{ width: '30%' }}>
+              <label htmlFor="countryCode" style={labelStyle}>Landcode:</label>
+              <select
+                id="countryCode"
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value)}
+                style={{ ...inputStyle, marginBottom: 0 }}
+              >
+                <option value="+31">🇳🇱 +31</option>
+                <option value="+32">🇧🇪 +32</option>
+                <option value="+49">🇩🇪 +49</option>
+              </select>
+            </div>
+            <div style={{ width: '70%' }}>
+              <label htmlFor="phoneNumber" style={labelStyle}>Telefoonnummer:</label>
+              <input
+                id="phoneNumber"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                style={{ ...inputStyle, marginBottom: 0 }}
+                required
+              />
+            </div>
           </div>
-          <div style={{ width: '70%' }}>
-            <label htmlFor="phoneNumber" style={labelStyle}>Telefoonnummer:</label>
-            <input
-              id="phoneNumber"
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              style={{ ...inputStyle, marginBottom: 0 }}
-              required
-            />
-          </div>
+
+          <label htmlFor="companyName" style={labelStyle}>Bedrijfsnaam (optioneel):</label>
+          <input
+            id="companyName"
+            type="text"
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+            style={inputStyle}
+          />
         </div>
 
-        <label htmlFor="companyName" style={labelStyle}>Bedrijfsnaam (optioneel):</label>
-        <input
-          id="companyName"
-          type="text"
-          value={companyName}
-          onChange={(e) => setCompanyName(e.target.value)}
-          style={inputStyle}
-        />
+        <div style={columnStyle}>
+          <label htmlFor="postcode" style={labelStyle}>Postcode:</label>
+          <input
+            id="postcode"
+            type="text"
+            value={postcode}
+            onChange={(e) => setPostcode(e.target.value)}
+            style={inputStyle}
+            required
+          />
 
-        <label htmlFor="postcode" style={labelStyle}>Postcode:</label>
-        <input
-          id="postcode"
-          type="text"
-          value={postcode}
-          onChange={(e) => setPostcode(e.target.value)}
-          style={inputStyle}
-          required
-        />
+          <label htmlFor="houseNumber" style={labelStyle}>Huisnummer:</label>
+          <input
+            id="houseNumber"
+            type="text"
+            value={houseNumber}
+            onChange={(e) => setHouseNumber(e.target.value)}
+            style={inputStyle}
+            required
+          />
 
-        <label htmlFor="houseNumber" style={labelStyle}>Huisnummer:</label>
-        <input
-          id="houseNumber"
-          type="text"
-          value={houseNumber}
-          onChange={(e) => setHouseNumber(e.target.value)}
-          style={inputStyle}
-          required
-        />
+          <label htmlFor="street" style={labelStyle}>Straat:</label>
+          <input
+            id="street"
+            type="text"
+            value={street}
+            onChange={(e) => setStreet(e.target.value)}
+            style={inputStyle}
+            required
+          />
 
-        <label htmlFor="street" style={labelStyle}>Straat:</label>
-        <input
-          id="street"
-          type="text"
-          value={street}
-          onChange={(e) => setStreet(e.target.value)}
-          style={inputStyle}
-          required
-        />
+          <label htmlFor="city" style={labelStyle}>Stad:</label>
+          <input
+            id="city"
+            type="text"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            style={inputStyle}
+            required
+          />
 
-        <label htmlFor="city" style={labelStyle}>Stad:</label>
-        <input
-          id="city"
-          type="text"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          style={inputStyle}
-          required
-        />
+          {companyName && (
+            <>
+              <label htmlFor="kvkNumber" style={labelStyle}>KVK-nummer:</label>
+              <input
+                id="kvkNumber"
+                type="text"
+                value={kvkNumber}
+                onChange={(e) => setKvkNumber(e.target.value)}
+                style={inputStyle}
+                required
+              />
 
-        {companyName && (
-          <>
-            <label htmlFor="kvkNumber" style={labelStyle}>KVK-nummer:</label>
-            <input
-              id="kvkNumber"
-              type="text"
-              value={kvkNumber}
-              onChange={(e) => setKvkNumber(e.target.value)}
-              style={inputStyle}
-              required
-            />
-
-            <label htmlFor="vatNumber" style={labelStyle}>BTW-nummer:</label>
-            <input
-              id="vatNumber"
-              type="text"
-              value={vatNumber}
-              onChange={(e) => setVatNumber(e.target.value)}
-              style={inputStyle}
-              required
-            />
-          </>
-        )}
+              <label htmlFor="vatNumber" style={labelStyle}>BTW-nummer:</label>
+              <input
+                id="vatNumber"
+                type="text"
+                value={vatNumber}
+                onChange={(e) => setVatNumber(e.target.value)}
+                style={inputStyle}
+                required
+              />
+            </>
+          )}
+        </div>
 
         <button 
           type="submit"
