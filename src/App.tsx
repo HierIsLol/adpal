@@ -6,7 +6,7 @@ import StoreLinkPage from './StoreLinkPage';
 import DashboardPage from './DashboardPage';
 import ProfilePage from './ProfilePage';
 
-const HamburgerMenu = ({ isOpen, toggleMenu }: { isOpen: boolean; toggleMenu: () => void }) => (
+const HamburgerMenu = ({ isOpen, toggleMenu, signOut }: { isOpen: boolean; toggleMenu: () => void; signOut: () => void }) => (
   <div style={{
     position: 'fixed',
     top: 0,
@@ -31,10 +31,11 @@ const HamburgerMenu = ({ isOpen, toggleMenu }: { isOpen: boolean; toggleMenu: ()
     </button>
     <nav style={{ padding: '50px 20px' }}>
       <ul style={{ listStyle: 'none', padding: 0 }}>
-        <li style={{ marginBottom: '10px' }}><Link to="/" style={{ textDecoration: 'none', color: '#333' }}>Home</Link></li>
-        <li style={{ marginBottom: '10px' }}><Link to="/profile" style={{ textDecoration: 'none', color: '#333' }}>Profiel</Link></li>
-        <li style={{ marginBottom: '10px' }}><Link to="/store-link" style={{ textDecoration: 'none', color: '#333' }}>Koppel Store</Link></li>
-        <li><Link to="/dashboard" style={{ textDecoration: 'none', color: '#333' }}>Dashboard</Link></li>
+        <li style={{ marginBottom: '10px' }}><Link to="/" style={{ textDecoration: 'none', color: '#333' }} onClick={toggleMenu}>Home</Link></li>
+        <li style={{ marginBottom: '10px' }}><Link to="/profile" style={{ textDecoration: 'none', color: '#333' }} onClick={toggleMenu}>Profiel</Link></li>
+        <li style={{ marginBottom: '10px' }}><Link to="/store-link" style={{ textDecoration: 'none', color: '#333' }} onClick={toggleMenu}>Koppel Store</Link></li>
+        <li style={{ marginBottom: '10px' }}><Link to="/dashboard" style={{ textDecoration: 'none', color: '#333' }} onClick={toggleMenu}>Dashboard</Link></li>
+        <li><button onClick={() => { signOut(); toggleMenu(); }} style={{ background: 'none', border: 'none', color: '#333', cursor: 'pointer', padding: 0, font: 'inherit' }}>Uitloggen</button></li>
       </ul>
     </nav>
   </div>
@@ -65,9 +66,6 @@ const HomePage = ({ signOut, user }: HomePageProps) => {
           →Bekijk Dashboard
         </button>
       </Link>
-      <button onClick={signOut} style={{ display: 'block', margin: '20px auto', backgroundColor: '#f44336', border: 'none', cursor: 'pointer', color: 'white', padding: '10px 20px' }}>
-        Uitloggen
-      </button>
     </div>
   );
 };
@@ -84,7 +82,7 @@ const AppContent = ({ signOut, user }: AppContentProps) => {
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   return (
-    <main style={{ position: 'relative' }}>
+    <main style={{ position: 'relative', minHeight: '100vh', paddingBottom: '50px' }}>
       <button onClick={toggleMenu} style={{
         position: 'fixed',
         top: '10px',
@@ -97,7 +95,14 @@ const AppContent = ({ signOut, user }: AppContentProps) => {
       }}>
         ☰
       </button>
-      <HamburgerMenu isOpen={isMenuOpen} toggleMenu={toggleMenu} />
+      <HamburgerMenu isOpen={isMenuOpen} toggleMenu={toggleMenu} signOut={signOut} />
+      {location.pathname !== '/' && (
+        <Link to="/" style={{ position: 'fixed', top: '10px', left: '10px', textDecoration: 'none', zIndex: 1001 }}>
+          <button style={{ fontSize: '16px', padding: '5px 10px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white' }}>
+            ← Terug naar Home
+          </button>
+        </Link>
+      )}
       <Routes>
         <Route path="/" element={<HomePage signOut={signOut} user={user} />} />
         <Route path="/store-link" element={<StoreLinkPage />} />
@@ -105,13 +110,6 @@ const AppContent = ({ signOut, user }: AppContentProps) => {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      {location.pathname !== '/' && (
-        <Link to="/" style={{ position: 'fixed', bottom: '10px', left: '10px', textDecoration: 'none' }}>
-          <button style={{ fontSize: '16px', padding: '5px 10px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white' }}>
-            ← Terug naar Home
-          </button>
-        </Link>
-      )}
     </main>
   );
 };
@@ -121,7 +119,6 @@ function App() {
     <Router>
       <Authenticator>
         {({ signOut, user }) => {
-          // Maak een wrapper voor signOut om het type-probleem op te lossen
           const handleSignOut = () => {
             if (signOut) {
               signOut();
