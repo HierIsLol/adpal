@@ -42,11 +42,10 @@ const HamburgerMenu = ({ isOpen, toggleMenu, signOut }: { isOpen: boolean; toggl
 );
 
 interface HomePageProps {
-  signOut: () => void;
   user: any;
 }
 
-const HomePage = ({ signOut, user }: HomePageProps) => {
+const HomePage = ({ user }: HomePageProps) => {
   return (
     <div style={{ textAlign: 'center', paddingTop: '20px' }}>
       <img 
@@ -104,7 +103,7 @@ const AppContent = ({ signOut, user }: AppContentProps) => {
         </Link>
       )}
       <Routes>
-        <Route path="/" element={<HomePage signOut={signOut} user={user} />} />
+        <Route path="/" element={<HomePage user={user} />} />
         <Route path="/store-link" element={<StoreLinkPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
