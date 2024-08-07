@@ -7,7 +7,37 @@ import DashboardPage from './DashboardPage';
 import ProfilePage from './ProfilePage';
 
 const HamburgerMenu = ({ isOpen, toggleMenu }: { isOpen: boolean; toggleMenu: () => void }) => (
-  // ... (HamburgerMenu code blijft hetzelfde)
+  <div style={{
+    position: 'fixed',
+    top: 0,
+    right: isOpen ? 0 : '-250px',
+    width: '250px',
+    height: '100%',
+    backgroundColor: '#f8f8f8',
+    transition: 'right 0.3s ease-in-out',
+    boxShadow: '-2px 0 5px rgba(0,0,0,0.1)',
+    zIndex: 1000
+  }}>
+    <button onClick={toggleMenu} style={{
+      position: 'absolute',
+      top: '10px',
+      right: '10px',
+      background: 'none',
+      border: 'none',
+      fontSize: '24px',
+      cursor: 'pointer'
+    }}>
+      ✕
+    </button>
+    <nav style={{ padding: '50px 20px' }}>
+      <ul style={{ listStyle: 'none', padding: 0 }}>
+        <li style={{ marginBottom: '10px' }}><Link to="/" style={{ textDecoration: 'none', color: '#333' }}>Home</Link></li>
+        <li style={{ marginBottom: '10px' }}><Link to="/profile" style={{ textDecoration: 'none', color: '#333' }}>Profiel</Link></li>
+        <li style={{ marginBottom: '10px' }}><Link to="/store-link" style={{ textDecoration: 'none', color: '#333' }}>Koppel Store</Link></li>
+        <li><Link to="/dashboard" style={{ textDecoration: 'none', color: '#333' }}>Dashboard</Link></li>
+      </ul>
+    </nav>
+  </div>
 );
 
 interface HomePageProps {
@@ -16,7 +46,30 @@ interface HomePageProps {
 }
 
 const HomePage = ({ signOut, user }: HomePageProps) => {
-  // ... (HomePage code blijft hetzelfde)
+  return (
+    <div style={{ textAlign: 'center', paddingTop: '20px' }}>
+      <img 
+        src="https://i.postimg.cc/Mp8Whhmw/Ad-Pal-logo-no-white.png" 
+        style={{ width: '188px', height: '188px', margin: '0 auto', display: 'block' }} 
+        alt="AdPal Logo"
+      />
+      <h1 style={{ marginTop: '20px' }}>Welkom {user?.signInDetails?.loginId}</h1>
+      <p>We zijn nog druk bezig, je kunt alvast je store koppelen of het dashboard bekijken 😁</p>
+      <Link to="/store-link">
+        <button style={{ fontSize: '18px', padding: '10px 20px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white', margin: '10px' }}>
+          →Koppel mijn store!
+        </button>
+      </Link>
+      <Link to="/dashboard">
+        <button style={{ fontSize: '18px', padding: '10px 20px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white', margin: '10px' }}>
+          →Bekijk Dashboard
+        </button>
+      </Link>
+      <button onClick={signOut} style={{ display: 'block', margin: '20px auto', backgroundColor: '#f44336', border: 'none', cursor: 'pointer', color: 'white', padding: '10px 20px' }}>
+        Uitloggen
+      </button>
+    </div>
+  );
 };
 
 interface AppContentProps {
