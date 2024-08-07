@@ -1,4 +1,5 @@
-import * as React from 'react';
+// @ts-ignore
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
