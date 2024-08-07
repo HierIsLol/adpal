@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
@@ -6,7 +6,7 @@ import StoreLinkPage from './StoreLinkPage';
 import DashboardPage from './DashboardPage';
 import ProfilePage from './ProfilePage';
 
-const HamburgerMenu = ({ isOpen, toggleMenu }) => (
+const HamburgerMenu = ({ isOpen, toggleMenu }: { isOpen: boolean; toggleMenu: () => void }) => (
   <div style={{
     position: 'fixed',
     top: 0,
@@ -40,7 +40,7 @@ const HamburgerMenu = ({ isOpen, toggleMenu }) => (
   </div>
 );
 
-const HomePage = ({ signOut, user, toggleMenu }) => {
+const HomePage = ({ signOut, user }: { signOut: () => void; user: any }) => {
   return (
     <div style={{ textAlign: 'center', paddingTop: '20px' }}>
       <img 
@@ -67,7 +67,7 @@ const HomePage = ({ signOut, user, toggleMenu }) => {
   );
 };
 
-const AppContent = ({ signOut, user }) => {
+const AppContent = ({ signOut, user }: { signOut: () => void; user: any }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
@@ -89,7 +89,7 @@ const AppContent = ({ signOut, user }) => {
       </button>
       <HamburgerMenu isOpen={isMenuOpen} toggleMenu={toggleMenu} />
       <Routes>
-        <Route path="/" element={<HomePage signOut={signOut} user={user} toggleMenu={toggleMenu} />} />
+        <Route path="/" element={<HomePage signOut={signOut} user={user} />} />
         <Route path="/store-link" element={<StoreLinkPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
