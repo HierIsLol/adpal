@@ -27,7 +27,6 @@ const ProfilePage: React.FC = () => {
       if (idToken && idToken.payload) {
         const currentUsername = idToken.payload['cognito:username'];
         if (typeof currentUsername === 'string') {
-          // Hier zou je een API-call kunnen doen om de rest van de profielgegevens op te halen
           console.log('Gebruikersnaam:', currentUsername);
         } else {
           console.error('Username is not a string:', currentUsername);
@@ -77,180 +76,193 @@ const ProfilePage: React.FC = () => {
     }
   };
 
+  const inputStyle = {
+    width: '100%',
+    padding: '10px',
+    marginBottom: '10px',
+    borderRadius: '4px',
+    border: '1px solid #ccc',
+    boxSizing: 'border-box' as 'border-box',
+  };
+
+  const labelStyle = {
+    display: 'block',
+    marginBottom: '5px',
+    fontWeight: 'bold' as 'bold',
+  };
+
   return (
     <div style={{ 
       width: '100%', 
-      maxWidth: '600px', 
+      maxWidth: '1200px', 
       margin: '0 auto', 
       padding: '20px', 
       boxSizing: 'border-box',
       fontFamily: 'Arial, sans-serif'
     }}>
-      <h1 style={{ textAlign: 'center', color: '#003366' }}>Profiel</h1>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-        <div>
-          <label htmlFor="firstName" style={{ display: 'block', marginBottom: '5px' }}>Voornaam:</label>
+      <h1 style={{ textAlign: 'center', color: '#003366', marginBottom: '30px' }}>Profiel</h1>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+        <div style={{ flex: '1 1 45%', minWidth: '300px' }}>
+          <label htmlFor="firstName" style={labelStyle}>Voornaam:</label>
           <input
             id="firstName"
             type="text"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+            style={inputStyle}
             required
           />
-        </div>
-        <div>
-          <label htmlFor="lastName" style={{ display: 'block', marginBottom: '5px' }}>Achternaam:</label>
+
+          <label htmlFor="lastName" style={labelStyle}>Achternaam:</label>
           <input
             id="lastName"
             type="text"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+            style={inputStyle}
             required
           />
-        </div>
-        <div>
-          <label htmlFor="email" style={{ display: 'block', marginBottom: '5px' }}>E-mail:</label>
+
+          <label htmlFor="email" style={labelStyle}>E-mail:</label>
           <input
             id="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+            style={inputStyle}
             required
           />
-        </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <div style={{ width: '30%' }}>
-            <label htmlFor="countryCode" style={{ display: 'block', marginBottom: '5px' }}>Landcode:</label>
-            <select
-              id="countryCode"
-              value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value)}
-              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-            >
-              <option value="+31">🇳🇱 +31</option>
-              <option value="+32">🇧🇪 +32</option>
-              <option value="+49">🇩🇪 +49</option>
-              {/* Voeg hier meer landen toe */}
-            </select>
+
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ width: '30%' }}>
+              <label htmlFor="countryCode" style={labelStyle}>Landcode:</label>
+              <select
+                id="countryCode"
+                value={countryCode}
+                onChange={(e) => setCountryCode(e.target.value)}
+                style={inputStyle}
+              >
+                <option value="+31">🇳🇱 +31</option>
+                <option value="+32">🇧🇪 +32</option>
+                <option value="+49">🇩🇪 +49</option>
+              </select>
+            </div>
+            <div style={{ width: '70%' }}>
+              <label htmlFor="phoneNumber" style={labelStyle}>Telefoonnummer:</label>
+              <input
+                id="phoneNumber"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                style={inputStyle}
+                required
+              />
+            </div>
           </div>
-          <div style={{ width: '70%' }}>
-            <label htmlFor="phoneNumber" style={{ display: 'block', marginBottom: '5px' }}>Telefoonnummer:</label>
-            <input
-              id="phoneNumber"
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-              required
-            />
-          </div>
-        </div>
-        <div>
-          <label htmlFor="postcode" style={{ display: 'block', marginBottom: '5px' }}>Postcode:</label>
-          <input
-            id="postcode"
-            type="text"
-            value={postcode}
-            onChange={(e) => setPostcode(e.target.value)}
-            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="houseNumber" style={{ display: 'block', marginBottom: '5px' }}>Huisnummer:</label>
-          <input
-            id="houseNumber"
-            type="text"
-            value={houseNumber}
-            onChange={(e) => setHouseNumber(e.target.value)}
-            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="street" style={{ display: 'block', marginBottom: '5px' }}>Straat:</label>
-          <input
-            id="street"
-            type="text"
-            value={street}
-            onChange={(e) => setStreet(e.target.value)}
-            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="city" style={{ display: 'block', marginBottom: '5px' }}>Stad:</label>
-          <input
-            id="city"
-            type="text"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="companyName" style={{ display: 'block', marginBottom: '5px' }}>Bedrijfsnaam (optioneel):</label>
+
+          <label htmlFor="companyName" style={labelStyle}>Bedrijfsnaam (optioneel):</label>
           <input
             id="companyName"
             type="text"
             value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
-            style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+            style={inputStyle}
           />
         </div>
-        {companyName && (
-          <>
-            <div>
-              <label htmlFor="kvkNumber" style={{ display: 'block', marginBottom: '5px' }}>KVK-nummer:</label>
+
+        <div style={{ flex: '1 1 45%', minWidth: '300px' }}>
+          <label htmlFor="postcode" style={labelStyle}>Postcode:</label>
+          <input
+            id="postcode"
+            type="text"
+            value={postcode}
+            onChange={(e) => setPostcode(e.target.value)}
+            style={inputStyle}
+            required
+          />
+
+          <label htmlFor="houseNumber" style={labelStyle}>Huisnummer:</label>
+          <input
+            id="houseNumber"
+            type="text"
+            value={houseNumber}
+            onChange={(e) => setHouseNumber(e.target.value)}
+            style={inputStyle}
+            required
+          />
+
+          <label htmlFor="street" style={labelStyle}>Straat:</label>
+          <input
+            id="street"
+            type="text"
+            value={street}
+            onChange={(e) => setStreet(e.target.value)}
+            style={inputStyle}
+            required
+          />
+
+          <label htmlFor="city" style={labelStyle}>Stad:</label>
+          <input
+            id="city"
+            type="text"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            style={inputStyle}
+            required
+          />
+
+          {companyName && (
+            <>
+              <label htmlFor="kvkNumber" style={labelStyle}>KVK-nummer:</label>
               <input
                 id="kvkNumber"
                 type="text"
                 value={kvkNumber}
                 onChange={(e) => setKvkNumber(e.target.value)}
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                style={inputStyle}
                 required
               />
-            </div>
-            <div>
-              <label htmlFor="vatNumber" style={{ display: 'block', marginBottom: '5px' }}>BTW-nummer:</label>
+
+              <label htmlFor="vatNumber" style={labelStyle}>BTW-nummer:</label>
               <input
                 id="vatNumber"
                 type="text"
                 value={vatNumber}
                 onChange={(e) => setVatNumber(e.target.value)}
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                style={inputStyle}
                 required
               />
-            </div>
-          </>
-        )}
-        <button 
-          type="submit"
-          style={{ 
-            padding: '10px 15px', 
-            backgroundColor: '#003366', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '4px', 
-            cursor: 'pointer',
-            fontSize: '16px'
-          }}
-        >
-          Profiel Bijwerken
-        </button>
+            </>
+          )}
+        </div>
+
+        <div style={{ width: '100%', textAlign: 'center', marginTop: '20px' }}>
+          <button 
+            type="submit"
+            style={{ 
+              padding: '12px 24px', 
+              backgroundColor: '#003366', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '4px', 
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: 'bold',
+            }}
+          >
+            Profiel Bijwerken
+          </button>
+        </div>
       </form>
       {message && (
         <div style={{ 
           marginTop: '20px', 
-          padding: '10px', 
+          padding: '15px', 
           backgroundColor: message.includes('succesvol') ? '#d4edda' : '#f8d7da', 
           color: message.includes('succesvol') ? '#155724' : '#721c24',
           borderRadius: '5px',
-          textAlign: 'center'
+          textAlign: 'center',
+          fontWeight: 'bold',
         }}>
           {message}
         </div>
