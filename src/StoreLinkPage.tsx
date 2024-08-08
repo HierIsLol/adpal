@@ -1,130 +1,171 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
-import { Authenticator } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
-import StoreLinkPage from './StoreLinkPage';
-import DashboardPage from './DashboardPage';
-import ProfilePage from './ProfilePage';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
-const HomePage = ({ user, signOut }) => {
-  const [userInfo, setUserInfo] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+const StoreLinkPage: React.FC = () => {
+  const [adClientSecret, setAdClientSecret] = useState('');
+  const [adClientId, setAdClientId] = useState('');
+  const [retailerClientSecret, setRetailerClientSecret] = useState('');
+  const [retailerClientId, setRetailerClientId] = useState('');
+  const [_username, setUsername] = useState('');
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
-      setIsLoading(true);
-      try {
-        const API_URL = 'https://p82pqtgrs0.execute-api.us-east-1.amazonaws.com/prod/getUserInfo';
-        const urlWithParams = `${API_URL}?username=${encodeURIComponent(user.username)}`;
-        
-        const response = await fetch(urlWithParams, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+    getCurrentUser();
+  }, []);
 
-        const data = await response.json();
-        
-        if (response.ok && data.success) {
-          setUserInfo(data.user_info);
+  const getCurrentUser = async () => {
+    try {
+      const { tokens } = await fetchAuthSession();
+      const idToken = tokens?.idToken;
+      if (idToken && idToken.payload) {
+        const currentUsername = idToken.payload['cognito:username'];
+        if (typeof currentUsername === 'string') {
+          setUsername(currentUsername);
         } else {
-          throw new Error(data.message || 'Er is een fout opgetreden bij het ophalen van gebruikersgegevens');
+          console.error('Username is not a string:', currentUsername);
+          setUsername('');
         }
-      } catch (err) {
-        console.error('Error fetching user info:', err);
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
       }
-    };
+    } catch (error) {
+      console.error('Error getting current user:', error);
+    }
+  };
 
-    fetchUserInfo();
-  }, [user.username]);
-
-  return (
-    <div style={{ textAlign: 'center', paddingTop: '20px' }}>
-      <img 
-        src="https://i.postimg.cc/Mp8Whhmw/Ad-Pal-logo-no-white.png" 
-        style={{ width: '188px', height: '188px', margin: '0 auto', display: 'block' }} 
-        alt="AdPal Logo"
-      />
-      
-      {isLoading ? (
-        <h1 style={{ marginTop: '20px' }}>Laden...</h1>
-      ) : error ? (
-        <h1 style={{ marginTop: '20px', color: 'red' }}>Fout: {error}</h1>
-      ) : (
-        <h1 style={{ marginTop: '20px' }}>
-          Welkom {userInfo?.firstName || user.username}
-        </h1>
-      )}
-
-      <p>We zijn nog druk bezig, je kunt alvast je store koppelen of het dashboard bekijken 😁</p>
-      <nav style={{ marginTop: '20px' }}>
-        <Link to="/store-link">
-          <button style={{ fontSize: '18px', padding: '10px 20px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white', margin: '10px' }}>
-            →Koppel mijn store!
-          </button>
-        </Link>
-        <Link to="/dashboard">
-          <button style={{ fontSize: '18px', padding: '10px 20px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white', margin: '10px' }}>
-            →Bekijk Dashboard
-          </button>
-        </Link>
-        <Link to="/profile">
-          <button style={{ fontSize: '18px', padding: '10px 20px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white', margin: '10px' }}>
-            Profiel
-          </button>
-        </Link>
-        <button onClick={signOut} style={{ fontSize: '18px', padding: '10px 20px', backgroundColor: '#f44336', border: 'none', cursor: 'pointer', color: 'white', margin: '10px' }}>
-          Uitloggen
-        </button>
-      </nav>
-    </div>
-  );
-};
-
-const AppContent = ({ signOut, user }) => {
-  const location = useLocation();
+  const handleSubmit = async () => {
+    if (!adClientSecret || !adClientId || !retailerClientSecret || !retailerClientId) {
+      setMessage('Vul alstublieft alle velden in.');
+      return;
+    }
+    setMessage('Bezig met opslaan...');
+    // Hier zou de logica komen om de gegevens te verzenden
+    // Voor nu simuleren we een succesvolle opslag
+    setTimeout(() => {
+      setMessage('Gegevens succesvol opgeslagen!');
+    }, 1000);
+  };
 
   return (
-    <div style={{ padding: '20px' }}>
-      {location.pathname !== '/' && (
-        <Link to="/" style={{ position: 'fixed', top: '10px', left: '10px', textDecoration: 'none' }}>
-          <button style={{ fontSize: '16px', padding: '5px 10px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white' }}>
-            ← Terug naar Home
-          </button>
-        </Link>
-      )}
-      <Routes>
-        <Route path="/" element={<HomePage user={user} signOut={signOut} />} />
-        <Route path="/store-link" element={<StoreLinkPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </div>
-  );
-};
-
-function App() {
-  return (
-    <Router>
-      <Authenticator>
-        {({ signOut, user }) => {
-          const handleSignOut = () => {
-            if (signOut) {
-              signOut();
-            }
-          };
+    <div style={{ 
+      width: '100%', 
+      height: '100vh', 
+      overflow: 'auto', 
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      padding: '20px',
+      boxSizing: 'border-box',
+      backgroundColor: '#f0f0f0',
+      fontFamily: 'Arial, sans-serif',
+    }}>
+      <div style={{ 
+        width: '100%', 
+        maxWidth: '600px', 
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '20px',
+      }}>
+        <img src="https://i.postimg.cc/Mp8Whhmw/Ad-Pal-logo-no-white.png" style={{ width: '150px', alignSelf: 'center' }} alt="AdPal Logo"/>
+        
+        <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '10px', boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
+          <h2 style={{ textAlign: 'center', color: '#003366' }}>↓Volg de instructies</h2>
+          <p style={{ textAlign: 'center', fontSize: '16px', marginBottom: '20px' }}>
+            Om verbinding te kunnen maken met je store hebben wij koppelingsnummers nodig voor de Advertising API en de Retailer API.
+          </p>
           
-          return <AppContent signOut={handleSignOut} user={user} />;
-        }}
-      </Authenticator>
-    </Router>
-  );
-}
+          <img src="https://i.postimg.cc/Z0fzBD27/ezgif-5-675330dec9-kopie.gif" style={{ width: '100%', maxWidth: '316px', height: 'auto', display: 'block', margin: '0 auto 20px' }} alt="Instructie GIF"/>
+          
+          <img src="/api/placeholder/316/164" style={{ width: '100%', maxWidth: '316px', height: 'auto', display: 'block', margin: '0 auto' }} alt="Tweede instructie afbeelding"/>
+        </div>
 
-export default App;
+        <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '10px', boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ color: '#003366', marginBottom: '15px' }}>Advertising API</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <div>
+              <label htmlFor="adClientSecret" style={{ display: 'block', marginBottom: '5px', color: '#003366' }}>Client secret:</label>
+              <input
+                id="adClientSecret"
+                type="text"
+                style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}
+                placeholder="Advertising Client Secret"
+                value={adClientSecret}
+                onChange={(e) => setAdClientSecret(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="adClientId" style={{ display: 'block', marginBottom: '5px', color: '#003366' }}>Client ID:</label>
+              <input
+                id="adClientId"
+                type="text"
+                style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}
+                placeholder="Advertising Client ID"
+                value={adClientId}
+                onChange={(e) => setAdClientId(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '10px', boxShadow: '0 0 10px rgba(0,0,0,0.1)' }}>
+          <h3 style={{ color: '#003366', marginBottom: '15px' }}>Retailer API</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <div>
+              <label htmlFor="retailerClientSecret" style={{ display: 'block', marginBottom: '5px', color: '#003366' }}>Client secret:</label>
+              <input
+                id="retailerClientSecret"
+                type="text"
+                style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}
+                placeholder="Retailer Client Secret"
+                value={retailerClientSecret}
+                onChange={(e) => setRetailerClientSecret(e.target.value)}
+              />
+            </div>
+            <div>
+              <label htmlFor="retailerClientId" style={{ display: 'block', marginBottom: '5px', color: '#003366' }}>Client ID:</label>
+              <input
+                id="retailerClientId"
+                type="text"
+                style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '5px' }}
+                placeholder="Retailer Client ID"
+                value={retailerClientId}
+                onChange={(e) => setRetailerClientId(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+
+        <button 
+          onClick={handleSubmit} 
+          style={{ 
+            width: '100%', 
+            padding: '15px', 
+            backgroundColor: '#003366', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '5px', 
+            fontSize: '18px', 
+            cursor: 'pointer',
+            transition: 'background-color 0.3s'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#004c8c'}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#003366'}
+        >
+          ↓Koppel mijn store!
+        </button>
+
+        {message && (
+          <div style={{ 
+            padding: '10px', 
+            backgroundColor: message.includes('succesvol') ? '#d4edda' : '#f8d7da', 
+            color: message.includes('succesvol') ? '#155724' : '#721c24',
+            borderRadius: '5px',
+            textAlign: 'center'
+          }}>
+            {message}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default StoreLinkPage;
