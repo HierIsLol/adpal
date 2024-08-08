@@ -24,12 +24,13 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
           },
         });
 
-        console.log("Response status:", response.status); // Log de statuscode van de response
-        const responseBody = await response.json(); // Verander naar response.json() om JSON direct te parsen
-        console.log("Response body:", responseBody); // Log de body van de response
-        setFullResponse(responseBody); // Sla de volledige response op in de state
+        const responseBody = await response.json();
+        console.log("Response status:", response.status);
+        console.log("Response body:", responseBody);
+        setFullResponse(responseBody);
 
         if (response.status === 200 && responseBody.success) {
+          console.log("Setting firstName:", responseBody.user_info.firstName);
           setFirstName(responseBody.user_info.firstName);
         } else {
           console.error('Failed to fetch user info:', responseBody.message);
