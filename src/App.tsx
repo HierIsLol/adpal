@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
+import { Authenticator } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
+import StoreLinkPage from './StoreLinkPage';
+import DashboardPage from './DashboardPage';
+import ProfilePage from './ProfilePage';
 
 const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut }) => {
   const [firstName, setFirstName] = useState('');
@@ -86,4 +91,39 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
   );
 };
 
-export default HomePage;
+const AppContent: React.FC<{ signOut: () => void; user: any }> = ({ signOut, user }) => {
+  const location = useLocation();
+
+  return (
+    <div style={{ padding: '20px' }}>
+      {location.pathname !== '/' && (
+        <Link to="/" style={{ position: 'fixed', top: '10px', left: '10px', textDecoration: 'none' }}>
+          <button style={{ fontSize: '16px', padding: '5px 10px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white' }}>
+            ← Terug naar Home
+          </button>
+        </Link>
+      )}
+      <Routes>
+        <Route path="/" element={<HomePage user={user} signOut={signOut} />} />
+        <Route path="/store-link" element={<StoreLinkPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <Authenticator>
+        {({ signOut, user }) => (
+          <AppContent signOut={signOut} user={user} />
+        )}
+      </Authenticator>
+    </Router>
+  );
+}
+
+export default App;
