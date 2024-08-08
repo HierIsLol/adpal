@@ -6,12 +6,12 @@ import '@aws-amplify/ui-react/styles.css';
 import App from './App'
 import './index.css'
 
-// Amplify configuratie met de juiste waarden
+// Bijgewerkte Amplify configuratie
 Amplify.configure({
+  region: 'us-east-1', // Verplaatst naar het hoofdniveau van de configuratie
   Auth: {
-    region: 'us-east-1', // Dit is correct aangezien uw User Pool ID begint met 'us-east-1'
-    userPoolId: 'us-east-1_hDRllzVfc', // Uw User Pool ID
-    userPoolWebClientId: '7n80mfbjksq1f05vu450ko4cs9', // Uw App Client ID
+    userPoolId: 'us-east-1_hDRllzVfc',
+    userPoolWebClientId: '7n80mfbjksq1f05vu450ko4cs9',
   }
 });
 
