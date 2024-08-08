@@ -15,7 +15,6 @@ type AuthUser = {
 const HomePage: React.FC<{ user: AuthUser; signOut: () => void }> = ({ user, signOut }) => {
   const [firstName, setFirstName] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [fullResponse, setFullResponse] = useState<any>(null);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -33,7 +32,6 @@ const HomePage: React.FC<{ user: AuthUser; signOut: () => void }> = ({ user, sig
         const responseBody = await response.json();
         console.log("Response status:", response.status);
         console.log("Response body:", responseBody);
-        setFullResponse(responseBody);
 
         if (response.status === 200) {
           const parsedBody = JSON.parse(responseBody.body);
@@ -87,12 +85,6 @@ const HomePage: React.FC<{ user: AuthUser; signOut: () => void }> = ({ user, sig
           Uitloggen
         </button>
       </nav>
-      {fullResponse && (
-        <div style={{ textAlign: 'left', marginTop: '20px' }}>
-          <h2>Volledige Response van Lambda:</h2>
-          <pre>{JSON.stringify(fullResponse, null, 2)}</pre>
-        </div>
-      )}
     </div>
   );
 };
