@@ -8,6 +8,7 @@ import ProfilePage from './ProfilePage';
 
 const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut }) => {
   const [firstName, setFirstName] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -24,18 +25,15 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
         const responseBody = await response.json(); // Verander naar response.json() om JSON direct te parsen
         console.log("Response body:", responseBody); // Log de body van de response
 
-        if (responseBody.statusCode === 200) {
-          const result = JSON.parse(responseBody.body);
-          if (result.success) {
-            setFirstName(result.user_info.firstName);
-          } else {
-            console.error('Failed to fetch user info:', result.message);
-          }
+        if (response.status === 200 && responseBody.success) {
+          setFirstName(responseBody.user_info.firstName);
         } else {
-          console.error('Failed to fetch user info:', responseBody);
+          console.error('Failed to fetch user info:', responseBody.message);
+          setErrorMessage(responseBody.message);
         }
       } catch (error) {
         console.error('Error fetching user info:', error);
+        setErrorMessage('Error fetching user info');
       }
     };
 
@@ -50,6 +48,7 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
         alt="AdPal Logo"
       />
       <h1 style={{ marginTop: '20px' }}>Welkom {firstName}</h1>
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       <p>We zijn nog druk bezig, je kunt alvast je store koppelen of het dashboard bekijken 😁</p>
       <nav style={{ marginTop: '20px' }}>
         <Link to="/store-link">
