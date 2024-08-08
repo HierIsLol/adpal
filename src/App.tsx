@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
-import { Authenticator } from '@aws-amplify/ui-react';
+import { Authenticator, useAuthenticator, View } from '@aws-amplify/ui-react';
+import { AuthUser } from '@aws-amplify/ui-react/dist/types/components/Authenticator/types';
 import '@aws-amplify/ui-react/styles.css';
 import StoreLinkPage from './StoreLinkPage';
 import DashboardPage from './DashboardPage';
 import ProfilePage from './ProfilePage';
 
-const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut }) => {
+const HomePage: React.FC<{ user: AuthUser; signOut: () => void }> = ({ user, signOut }) => {
   const [firstName, setFirstName] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [fullResponse, setFullResponse] = useState(null);
+  const [fullResponse, setFullResponse] = useState<any>(null);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -91,11 +92,16 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
   );
 };
 
-const AppContent: React.FC<{ signOut: () => void; user: any }> = ({ signOut, user }) => {
+const AppContent: React.FC = () => {
   const location = useLocation();
+  const { user, signOut } = useAuthenticator((context) => [context.user, context.signOut]);
+
+  if (!user) {
+    return null;
+  }
 
   return (
-    <div style={{ padding: '20px' }}>
+    <View style={{ padding: '20px' }}>
       {location.pathname !== '/' && (
         <Link to="/" style={{ position: 'fixed', top: '10px', left: '10px', textDecoration: 'none' }}>
           <button style={{ fontSize: '16px', padding: '5px 10px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white' }}>
@@ -110,7 +116,7 @@ const AppContent: React.FC<{ signOut: () => void; user: any }> = ({ signOut, use
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </div>
+    </View>
   );
 };
 
@@ -118,9 +124,7 @@ function App() {
   return (
     <Router>
       <Authenticator>
-        {({ signOut, user }) => user && (
-          <AppContent signOut={signOut} user={user} />
-        )}
+        <AppContent />
       </Authenticator>
     </Router>
   );
