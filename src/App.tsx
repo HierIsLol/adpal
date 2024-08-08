@@ -6,6 +6,7 @@ import StoreLinkPage from './StoreLinkPage';
 import DashboardPage from './DashboardPage';
 import ProfilePage from './ProfilePage';
 
+
 const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut }) => {
   const [firstName, setFirstName] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
