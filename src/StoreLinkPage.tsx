@@ -6,17 +6,18 @@ import StoreLinkPage from './StoreLinkPage';
 import DashboardPage from './DashboardPage';
 import ProfilePage from './ProfilePage';
 
-const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut }) => {
-  const [firstName, setFirstName] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+const HomePage = ({ user, signOut }) => {
+  const [userInfo, setUserInfo] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
+      setIsLoading(true);
       try {
         const API_URL = 'https://p82pqtgrs0.execute-api.us-east-1.amazonaws.com/prod/getUserInfo';
         const urlWithParams = `${API_URL}?username=${encodeURIComponent(user.username)}`;
-        console.log("Request URL:", urlWithParams); // Log de request URL
-
+        
         const response = await fetch(urlWithParams, {
           method: 'GET',
           headers: {
@@ -24,19 +25,18 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
           },
         });
 
-        const responseBody = await response.json();
-        console.log("Response status:", response.status);
-        console.log("Response body:", responseBody);
-
-        if (response.status === 200 && responseBody.success) {
-          setFirstName(responseBody.user_info.firstName);
-          console.log("First name set to:", responseBody.user_info.firstName);
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          setUserInfo(data.user_info);
         } else {
-          setErrorMessage(responseBody.message);
+          throw new Error(data.message || 'Er is een fout opgetreden bij het ophalen van gebruikersgegevens');
         }
-      } catch (error) {
-        console.error('Error fetching user info:', error);
-        setErrorMessage('Error fetching user info');
+      } catch (err) {
+        console.error('Error fetching user info:', err);
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -50,10 +50,17 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
         style={{ width: '188px', height: '188px', margin: '0 auto', display: 'block' }} 
         alt="AdPal Logo"
       />
-      <h1 style={{ marginTop: '20px' }}>
-        Welkom {firstName || "Loading..."}
-      </h1>
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      
+      {isLoading ? (
+        <h1 style={{ marginTop: '20px' }}>Laden...</h1>
+      ) : error ? (
+        <h1 style={{ marginTop: '20px', color: 'red' }}>Fout: {error}</h1>
+      ) : (
+        <h1 style={{ marginTop: '20px' }}>
+          Welkom {userInfo?.firstName || user.username}
+        </h1>
+      )}
+
       <p>We zijn nog druk bezig, je kunt alvast je store koppelen of het dashboard bekijken 😁</p>
       <nav style={{ marginTop: '20px' }}>
         <Link to="/store-link">
@@ -79,7 +86,7 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
   );
 };
 
-const AppContent: React.FC<{ signOut: () => void; user: any }> = ({ signOut, user }) => {
+const AppContent = ({ signOut, user }) => {
   const location = useLocation();
 
   return (
