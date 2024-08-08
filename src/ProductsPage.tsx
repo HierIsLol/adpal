@@ -11,7 +11,7 @@ const ProductsPage: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch('https://YOUR_API_GATEWAY_URL/prod/startProductFetch', {
+      const response = await fetch('https://6kvaz936z5.execute-api.us-east-1.amazonaws.com/prod/startProductFetch', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
