@@ -5,6 +5,7 @@ import '@aws-amplify/ui-react/styles.css';
 import StoreLinkPage from './StoreLinkPage';
 import DashboardPage from './DashboardPage';
 import ProfilePage from './ProfilePage';
+import ProductsPage from './ProductsPage'; // New import for ProductsPage
 
 // Define a simple AuthUser type if the import is not available
 type AuthUser = {
@@ -76,6 +77,11 @@ const HomePage: React.FC<{ user: AuthUser; signOut: () => void }> = ({ user, sig
             →Bekijk Dashboard
           </button>
         </Link>
+        <Link to="/products">
+          <button style={{ fontSize: '18px', padding: '10px 20px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white', margin: '10px' }}>
+            →Bekijk Producten
+          </button>
+        </Link>
         <Link to="/profile">
           <button style={{ fontSize: '18px', padding: '10px 20px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white', margin: '10px' }}>
             Profiel
@@ -111,6 +117,7 @@ const AppContent: React.FC = () => {
         <Route path="/store-link" element={<StoreLinkPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/products" element={<ProductsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </View>
