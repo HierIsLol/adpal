@@ -9,6 +9,7 @@ import ProfilePage from './ProfilePage';
 const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut }) => {
   const [firstName, setFirstName] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [fullResponse, setFullResponse] = useState(null);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -24,6 +25,7 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
         console.log("Response status:", response.status); // Log de statuscode van de response
         const responseBody = await response.json(); // Verander naar response.json() om JSON direct te parsen
         console.log("Response body:", responseBody); // Log de body van de response
+        setFullResponse(responseBody); // Sla de volledige response op in de state
 
         if (response.status === 200 && responseBody.success) {
           setFirstName(responseBody.user_info.firstName);
@@ -70,6 +72,12 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
           Uitloggen
         </button>
       </nav>
+      {fullResponse && (
+        <div style={{ textAlign: 'left', marginTop: '20px' }}>
+          <h2>Volledige Response van Lambda:</h2>
+          <pre>{JSON.stringify(fullResponse, null, 2)}</pre>
+        </div>
+      )}
     </div>
   );
 };
