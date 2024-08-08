@@ -30,6 +30,7 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
         console.log("Response body:", responseBody);
 
         if (response.status === 200 && responseBody.success) {
+          // Parse the body string into an object
           const userInfo = JSON.parse(responseBody.body);
           if (userInfo && userInfo.user_info && userInfo.user_info.firstName) {
             setFirstName(userInfo.user_info.firstName);
@@ -59,7 +60,9 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
         alt="AdPal Logo"
       />
       <h1 style={{ marginTop: '20px' }}>
-        {isLoading ? "Laden..." : errorMessage ? errorMessage : `Welkom ${firstName}`}
+        {isLoading ? "Laden..." : 
+         errorMessage ? errorMessage : 
+         firstName ? `Welkom ${firstName}` : "Welkom"}
       </h1>
       <p>We zijn nog druk bezig, je kunt alvast je store koppelen of het dashboard bekijken 😁</p>
       <nav style={{ marginTop: '20px' }}>
