@@ -21,11 +21,11 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
         });
 
         console.log("Response status:", response.status); // Log de statuscode van de response
-        const responseBody = await response.text();
+        const responseBody = await response.json(); // Verander naar response.json() om JSON direct te parsen
         console.log("Response body:", responseBody); // Log de body van de response
 
-        if (response.ok) {
-          const result = JSON.parse(responseBody);
+        if (responseBody.statusCode === 200) {
+          const result = JSON.parse(responseBody.body);
           if (result.success) {
             setFirstName(result.user_info.firstName);
           } else {
