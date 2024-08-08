@@ -29,8 +29,7 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
         console.log("Response status:", response.status);
         console.log("Response body:", responseBody);
 
-        if (response.status === 200 && responseBody.success) {
-          // Parse the body string into an object
+        if (response.ok && responseBody.success) {
           const userInfo = JSON.parse(responseBody.body);
           if (userInfo && userInfo.user_info && userInfo.user_info.firstName) {
             setFirstName(userInfo.user_info.firstName);
@@ -39,11 +38,11 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
             setErrorMessage('Gebruikersinformatie niet gevonden');
           }
         } else {
-          setErrorMessage(responseBody.message || 'Er is een fout opgetreden');
+          throw new Error(responseBody.message || 'Er is een fout opgetreden');
         }
       } catch (error) {
         console.error('Error fetching user info:', error);
-        setErrorMessage('Fout bij het ophalen van gebruikersinformatie');
+        setErrorMessage(error instanceof Error ? error.message : 'Fout bij het ophalen van gebruikersinformatie');
       } finally {
         setIsLoading(false);
       }
@@ -62,7 +61,7 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
       <h1 style={{ marginTop: '20px' }}>
         {isLoading ? "Laden..." : 
          errorMessage ? errorMessage : 
-         firstName ? `Welkom ${firstName}` : "Welkom"}
+         `Welkom ${firstName}`}
       </h1>
       <p>We zijn nog druk bezig, je kunt alvast je store koppelen of het dashboard bekijken 😁</p>
       <nav style={{ marginTop: '20px' }}>
