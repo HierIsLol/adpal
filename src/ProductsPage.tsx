@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 
 const ProductsPage: React.FC = () => {
@@ -6,6 +6,11 @@ const ProductsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuthenticator((context) => [context.user]);
+
+  useEffect(() => {
+    // Fetch products when the component mounts
+    fetchProducts();
+  }, []);
 
   const fetchProducts = async () => {
     setIsLoading(true);
@@ -24,7 +29,12 @@ const ProductsPage: React.FC = () => {
       }
 
       const data = await response.json();
-      setProducts(data.products);
+      if (Array.isArray(data.products)) {
+        setProducts(data.products);
+      } else {
+        console.error('Unexpected data format:', data);
+        setError('Unexpected data format received from server');
+      }
     } catch (err) {
       setError('Error fetching products. Please try again.');
       console.error('Error:', err);
@@ -34,7 +44,7 @@ const ProductsPage: React.FC = () => {
   };
 
   const handlePercentageChange = (ean: string, percentage: number) => {
-    setProducts(products.map(product => 
+    setProducts(prevProducts => prevProducts.map(product => 
       product.ean === ean ? { ...product, percentage } : product
     ));
   };
@@ -55,26 +65,30 @@ const ProductsPage: React.FC = () => {
           margin: '10px' 
         }}
       >
-        {isLoading ? 'Bezig met ophalen...' : 'Haal product info op'}
+        {isLoading ? 'Bezig met ophalen...' : 'Vernieuw product info'}
       </button>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        {products.map(product => (
-          <div key={product.ean} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '10px 0', padding: '10px', border: '1px solid #ddd' }}>
-            <div>
-              <strong>{product.title}</strong>
-              <br />
-              <small>EAN: {product.ean}</small>
+        {products.length === 0 ? (
+          <p>Geen producten gevonden. Klik op de knop om producten op te halen.</p>
+        ) : (
+          products.map(product => (
+            <div key={product.ean} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '10px 0', padding: '10px', border: '1px solid #ddd' }}>
+              <div>
+                <strong>{product.title}</strong>
+                <br />
+                <small>EAN: {product.ean}</small>
+              </div>
+              <input
+                type="number"
+                value={product.percentage || ''}
+                onChange={(e) => handlePercentageChange(product.ean, Number(e.target.value))}
+                placeholder="Percentage"
+                style={{ width: '80px' }}
+              />
             </div>
-            <input
-              type="number"
-              value={product.percentage || ''}
-              onChange={(e) => handlePercentageChange(product.ean, Number(e.target.value))}
-              placeholder="Percentage"
-              style={{ width: '80px' }}
-            />
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );
