@@ -8,7 +8,6 @@ const ProductsPage: React.FC = () => {
   const { user } = useAuthenticator((context) => [context.user]);
 
   useEffect(() => {
-    // Fetch products when the component mounts
     fetchProducts();
   }, []);
 
@@ -25,18 +24,15 @@ const ProductsPage: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch products');
+        throw new Error('Failed to start product fetch');
       }
 
       const data = await response.json();
-      if (Array.isArray(data.products)) {
-        setProducts(data.products);
-      } else {
-        console.error('Unexpected data format:', data);
-        setError('Unexpected data format received from server');
-      }
+      console.log('Response from startProductFetch:', data);
+      setProducts([]); // Clear existing products
+      setError('Product fetch started. Please wait for the process to complete.');
     } catch (err) {
-      setError('Error fetching products. Please try again.');
+      setError('Error starting product fetch. Please try again.');
       console.error('Error:', err);
     } finally {
       setIsLoading(false);
@@ -65,12 +61,12 @@ const ProductsPage: React.FC = () => {
           margin: '10px' 
         }}
       >
-        {isLoading ? 'Bezig met ophalen...' : 'Vernieuw product info'}
+        {isLoading ? 'Bezig met starten...' : 'Start product ophalen'}
       </button>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         {products.length === 0 ? (
-          <p>Geen producten gevonden. Klik op de knop om producten op te halen.</p>
+          <p>Geen producten gevonden. Klik op de knop om het ophalen van producten te starten.</p>
         ) : (
           products.map(product => (
             <div key={product.ean} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '10px 0', padding: '10px', border: '1px solid #ddd' }}>
