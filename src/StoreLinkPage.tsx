@@ -7,8 +7,8 @@ import DashboardPage from './DashboardPage';
 import ProfilePage from './ProfilePage';
 
 const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut }) => {
-  const [firstName, setFirstName] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [firstName, setFirstName] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -16,7 +16,7 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
         const API_URL = 'https://p82pqtgrs0.execute-api.us-east-1.amazonaws.com/prod/getUserInfo';
         const urlWithParams = `${API_URL}?username=${encodeURIComponent(user.username)}`;
         console.log("Request URL:", urlWithParams); // Log de request URL
-        
+
         const response = await fetch(urlWithParams, {
           method: 'GET',
           headers: {
@@ -27,13 +27,15 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
         const responseBody = await response.json();
         console.log("Response status:", response.status);
         console.log("Response body:", responseBody);
-        
+
         if (response.status === 200 && responseBody.success) {
           setFirstName(responseBody.user_info.firstName);
+          console.log("First name set to:", responseBody.user_info.firstName);
         } else {
           setErrorMessage(responseBody.message);
         }
       } catch (error) {
+        console.error('Error fetching user info:', error);
         setErrorMessage('Error fetching user info');
       }
     };
@@ -49,7 +51,7 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
         alt="AdPal Logo"
       />
       <h1 style={{ marginTop: '20px' }}>
-        Welkom {firstName ? firstName : "Loading..."}
+        Welkom {firstName || "Loading..."}
       </h1>
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       <p>We zijn nog druk bezig, je kunt alvast je store koppelen of het dashboard bekijken 😁</p>
