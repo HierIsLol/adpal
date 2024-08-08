@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
 import { Authenticator } from '@aws-amplify/ui-react';
-import '@aws-amplify.ui-react/styles.css';
+import '@aws-amplify/ui-react/styles.css';
+import './app.css'; // Zorg ervoor dat deze lijn aanwezig is en het pad correct is
+
 import StoreLinkPage from './StoreLinkPage';
 import DashboardPage from './DashboardPage';
 import ProfilePage from './ProfilePage';
@@ -29,7 +31,7 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
         console.log("Response body:", responseBody);
 
         if (response.status === 200 && responseBody.success) {
-          const userInfo = JSON.parse(responseBody.body).user_info;
+          const userInfo = responseBody.user_info;
           setFirstName(userInfo.firstName);
           console.log("First name set to:", userInfo.firstName);
         } else {
