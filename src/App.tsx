@@ -1,23 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
-import { Authenticator } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
-import './app.css'; // Zorg ervoor dat deze lijn aanwezig is en het pad correct is
-
-import StoreLinkPage from './StoreLinkPage';
-import DashboardPage from './DashboardPage';
-import ProfilePage from './ProfilePage';
+import { Link } from 'react-router-dom';
 
 const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut }) => {
-  const [firstName, setFirstName] = useState('');
+  const [firstName, setFirstName] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const fetchUserInfo = async () => {
+      setIsLoading(true);
       try {
         const API_URL = 'https://p82pqtgrs0.execute-api.us-east-1.amazonaws.com/prod/getUserInfo';
         const urlWithParams = `${API_URL}?username=${encodeURIComponent(user.username)}`;
-        console.log("Request URL:", urlWithParams); // Log de request URL
+        console.log("Request URL:", urlWithParams);
 
         const response = await fetch(urlWithParams, {
           method: 'GET',
@@ -35,16 +30,28 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
           setFirstName(userInfo.firstName);
           console.log("First name set to:", userInfo.firstName);
         } else {
-          setErrorMessage(responseBody.message);
+          setErrorMessage(responseBody.message || 'Er is een fout opgetreden bij het ophalen van de gebruikersinformatie.');
         }
       } catch (error) {
         console.error('Error fetching user info:', error);
-        setErrorMessage('Error fetching user info');
+        setErrorMessage('Er is een fout opgetreden bij het ophalen van de gebruikersinformatie.');
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchUserInfo();
   }, [user.username]);
+
+  const renderWelcomeMessage = () => {
+    if (isLoading) {
+      return "Laden...";
+    }
+    if (firstName) {
+      return `Welkom ${firstName}`;
+    }
+    return "Welkom";
+  };
 
   return (
     <div style={{ textAlign: 'center', paddingTop: '20px' }}>
@@ -54,7 +61,7 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
         alt="AdPal Logo"
       />
       <h1 style={{ marginTop: '20px' }}>
-        Welkom {firstName ? firstName : "Loading..."}
+        {renderWelcomeMessage()}
       </h1>
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       <p>We zijn nog druk bezig, je kunt alvast je store koppelen of het dashboard bekijken 😁</p>
@@ -82,45 +89,4 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
   );
 };
 
-const AppContent: React.FC<{ signOut: () => void; user: any }> = ({ signOut, user }) => {
-  const location = useLocation();
-
-  return (
-    <div style={{ padding: '20px' }}>
-      {location.pathname !== '/' && (
-        <Link to="/" style={{ position: 'fixed', top: '10px', left: '10px', textDecoration: 'none' }}>
-          <button style={{ fontSize: '16px', padding: '5px 10px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white' }}>
-            ← Terug naar Home
-          </button>
-        </Link>
-      )}
-      <Routes>
-        <Route path="/" element={<HomePage user={user} signOut={signOut} />} />
-        <Route path="/store-link" element={<StoreLinkPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </div>
-  );
-};
-
-function App() {
-  return (
-    <Router>
-      <Authenticator>
-        {({ signOut, user }) => {
-          const handleSignOut = () => {
-            if (signOut) {
-              signOut();
-            }
-          };
-          
-          return <AppContent signOut={handleSignOut} user={user} />;
-        }}
-      </Authenticator>
-    </Router>
-  );
-}
-
-export default App;
+export default HomePage;
