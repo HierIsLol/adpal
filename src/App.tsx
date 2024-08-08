@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
@@ -7,6 +7,41 @@ import DashboardPage from './DashboardPage';
 import ProfilePage from './ProfilePage';
 
 const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut }) => {
+  const [firstName, setFirstName] = useState('');
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const API_URL = 'https://p82pqtgrs0.execute-api.us-east-1.amazonaws.com/prod/getUserInfo';
+        const response = await fetch(`${API_URL}?username=${user.username}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        console.log("Response status:", response.status); // Log de statuscode van de response
+        const responseBody = await response.text();
+        console.log("Response body:", responseBody); // Log de body van de response
+
+        if (response.ok) {
+          const result = JSON.parse(responseBody);
+          if (result.success) {
+            setFirstName(result.user_info.firstName);
+          } else {
+            console.error('Failed to fetch user info:', result.message);
+          }
+        } else {
+          console.error('Failed to fetch user info');
+        }
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+      }
+    };
+
+    fetchUserInfo();
+  }, [user.username]);
+
   return (
     <div style={{ textAlign: 'center', paddingTop: '20px' }}>
       <img 
@@ -14,7 +49,7 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
         style={{ width: '188px', height: '188px', margin: '0 auto', display: 'block' }} 
         alt="AdPal Logo"
       />
-      <h1 style={{ marginTop: '20px' }}>Welkom {user?.signInDetails?.loginId}</h1>
+      <h1 style={{ marginTop: '20px' }}>Welkom {firstName}</h1>
       <p>We zijn nog druk bezig, je kunt alvast je store koppelen of het dashboard bekijken 😁</p>
       <nav style={{ marginTop: '20px' }}>
         <Link to="/store-link">
