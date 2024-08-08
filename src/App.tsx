@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
 import { Authenticator, useAuthenticator, View } from '@aws-amplify/ui-react';
-import { AuthUser } from '@aws-amplify/ui-react/dist/types/components/Authenticator/types';
 import '@aws-amplify/ui-react/styles.css';
 import StoreLinkPage from './StoreLinkPage';
 import DashboardPage from './DashboardPage';
 import ProfilePage from './ProfilePage';
+
+// Define a simple AuthUser type if the import is not available
+type AuthUser = {
+  username: string;
+  // Add other properties that you know are available on the user object
+};
 
 const HomePage: React.FC<{ user: AuthUser; signOut: () => void }> = ({ user, signOut }) => {
   const [firstName, setFirstName] = useState('');
@@ -110,7 +115,7 @@ const AppContent: React.FC = () => {
         </Link>
       )}
       <Routes>
-        <Route path="/" element={<HomePage user={user} signOut={signOut} />} />
+        <Route path="/" element={<HomePage user={user as AuthUser} signOut={signOut} />} />
         <Route path="/store-link" element={<StoreLinkPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
