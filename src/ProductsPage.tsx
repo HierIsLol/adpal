@@ -1,16 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 
 const ProductsPage: React.FC = () => {
+  const [products, setProducts] = useState<Array<{ ean: string; title: string; percentage?: number }>>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuthenticator((context) => [context.user]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const fetchProducts = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      console.log("Sending request to start product fetch");
       const response = await fetch('https://6kvaz936z5.execute-api.us-east-1.amazonaws.com/prod/startProductFetch', {
         method: 'POST',
         headers: {
@@ -19,21 +23,26 @@ const ProductsPage: React.FC = () => {
         body: JSON.stringify({ username: user.username }),
       });
 
-      console.log("Received response:", response);
-      const data = await response.json();
-      console.log("Parsed response data:", data);
-
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to start product fetch');
+        throw new Error('Failed to start product fetch');
       }
 
-      setError('Product fetch started successfully. Please wait for the process to complete.');
+      const data = await response.json();
+      console.log('Response from startProductFetch:', data);
+      setProducts([]); // Clear existing products
+      setError('Product fetch started. Please wait for the process to complete.');
     } catch (err) {
+      setError('Error starting product fetch. Please try again.');
       console.error('Error:', err);
-      setError(`Error starting product fetch: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handlePercentageChange = (ean: string, percentage: number) => {
+    setProducts(prevProducts => prevProducts.map(product => 
+      product.ean === ean ? { ...product, percentage } : product
+    ));
   };
 
   return (
@@ -55,6 +64,28 @@ const ProductsPage: React.FC = () => {
         {isLoading ? 'Bezig met starten...' : 'Start product ophalen'}
       </button>
       {error && <p style={{ color: 'red' }}>{error}</p>}
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        {products.length === 0 ? (
+          <p>Geen producten gevonden. Klik op de knop om het ophalen van producten te starten.</p>
+        ) : (
+          products.map(product => (
+            <div key={product.ean} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '10px 0', padding: '10px', border: '1px solid #ddd' }}>
+              <div>
+                <strong>{product.title}</strong>
+                <br />
+                <small>EAN: {product.ean}</small>
+              </div>
+              <input
+                type="number"
+                value={product.percentage || ''}
+                onChange={(e) => handlePercentageChange(product.ean, Number(e.target.value))}
+                placeholder="Percentage"
+                style={{ width: '80px' }}
+              />
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 };
