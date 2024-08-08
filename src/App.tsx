@@ -15,7 +15,7 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
     const fetchUserInfo = async () => {
       try {
         const API_URL = 'https://p82pqtgrs0.execute-api.us-east-1.amazonaws.com/prod/getUserInfo';
-        const response = await fetch(`${API_URL}?username=${user.username}`, {
+        const response = await fetch(`${API_URL}?username=${encodeURIComponent(user.username)}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
