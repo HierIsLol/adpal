@@ -32,7 +32,7 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
             console.error('Failed to fetch user info:', result.message);
           }
         } else {
-          console.error('Failed to fetch user info');
+          console.error('Failed to fetch user info:', responseBody);
         }
       } catch (error) {
         console.error('Error fetching user info:', error);
