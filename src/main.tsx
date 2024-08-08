@@ -1,38 +1,20 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { Amplify } from 'aws-amplify';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
-import './app.css';
+import awsExports from './aws-exports';
+import App from './App.tsx'
+import './index.css'
 
-import StoreLinkPage from './StoreLinkPage';
-import DashboardPage from './DashboardPage';
-import ProfilePage from './ProfilePage';
-import HomePage from './HomePage';
+Amplify.configure(awsExports);
 
-const AppContent: React.FC<{ signOut: () => void; user: any }> = ({ signOut, user }) => {
-  return (
-    <Router>
-      <div style={{ padding: '20px' }}>
-        <Routes>
-          <Route path="/" element={<HomePage user={user} signOut={signOut} />} />
-          <Route path="/store-link" element={<StoreLinkPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </div>
-    </Router>
-  );
-};
-
-function App() {
-  return (
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
     <Authenticator>
       {({ signOut, user }) => (
-        <AppContent signOut={signOut} user={user} />
+        <App signOut={() => signOut?.()} user={user} />
       )}
     </Authenticator>
-  );
-}
-
-export default App;
+  </React.StrictMode>,
+)
