@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
-import { Authenticator } from '@aws-amplify/ui-react';
+import { Authenticator, AuthEventData } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import StoreLinkPage from './StoreLinkPage';
 import DashboardPage from './DashboardPage';
@@ -91,8 +91,17 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
   );
 };
 
-const AppContent: React.FC<{ signOut: () => void; user: any }> = ({ signOut, user }) => {
+const AppContent: React.FC<{ 
+  signOut: ((data?: AuthEventData | undefined) => void) | undefined; 
+  user: any 
+}> = ({ signOut, user }) => {
   const location = useLocation();
+
+  const handleSignOut = () => {
+    if (signOut) {
+      signOut();
+    }
+  };
 
   return (
     <div style={{ padding: '20px' }}>
@@ -104,7 +113,7 @@ const AppContent: React.FC<{ signOut: () => void; user: any }> = ({ signOut, use
         </Link>
       )}
       <Routes>
-        <Route path="/" element={<HomePage user={user} signOut={signOut} />} />
+        <Route path="/" element={<HomePage user={user} signOut={handleSignOut} />} />
         <Route path="/store-link" element={<StoreLinkPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
