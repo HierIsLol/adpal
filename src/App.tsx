@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
-import { Authenticator } from '@aws-amplify/ui-react';
-import '@aws-amplify/ui-react/styles.css';
-import StoreLinkPage from './StoreLinkPage';
-import DashboardPage from './DashboardPage';
-import ProfilePage from './ProfilePage';
+import { Link } from 'react-router-dom';
 
 const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut }) => {
   const [firstName, setFirstName] = useState('');
@@ -16,7 +11,7 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
       try {
         const API_URL = 'https://p82pqtgrs0.execute-api.us-east-1.amazonaws.com/prod/getUserInfo';
         const urlWithParams = `${API_URL}?username=${encodeURIComponent(user.username)}`;
-        console.log("Request URL:", urlWithParams); // Log de request URL
+        console.log("Request URL:", urlWithParams);
         const response = await fetch(urlWithParams, {
           method: 'GET',
           headers: {
@@ -29,12 +24,19 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
         console.log("Response body:", responseBody);
         setFullResponse(responseBody);
 
-        if (response.status === 200 && responseBody.success) {
-          console.log("Setting firstName:", responseBody.user_info.firstName);
-          setFirstName(responseBody.user_info.firstName);
+        if (response.status === 200) {
+          // Parse de geneste JSON-string in de 'body' property
+          const parsedBody = JSON.parse(responseBody.body);
+          if (parsedBody.success && parsedBody.user_info && parsedBody.user_info.firstName) {
+            console.log("Setting firstName:", parsedBody.user_info.firstName);
+            setFirstName(parsedBody.user_info.firstName);
+          } else {
+            console.error('Failed to fetch user info:', parsedBody.message);
+            setErrorMessage(parsedBody.message || 'Failed to fetch user info');
+          }
         } else {
           console.error('Failed to fetch user info:', responseBody.message);
-          setErrorMessage(responseBody.message);
+          setErrorMessage(responseBody.message || 'Failed to fetch user info');
         }
       } catch (error) {
         console.error('Error fetching user info:', error);
@@ -85,45 +87,4 @@ const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut 
   );
 };
 
-const AppContent: React.FC<{ signOut: () => void; user: any }> = ({ signOut, user }) => {
-  const location = useLocation();
-
-  return (
-    <div style={{ padding: '20px' }}>
-      {location.pathname !== '/' && (
-        <Link to="/" style={{ position: 'fixed', top: '10px', left: '10px', textDecoration: 'none' }}>
-          <button style={{ fontSize: '16px', padding: '5px 10px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white' }}>
-            ← Terug naar Home
-          </button>
-        </Link>
-      )}
-      <Routes>
-        <Route path="/" element={<HomePage user={user} signOut={signOut} />} />
-        <Route path="/store-link" element={<StoreLinkPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </div>
-  );
-};
-
-function App() {
-  return (
-    <Router>
-      <Authenticator>
-        {({ signOut, user }) => {
-          const handleSignOut = () => {
-            if (signOut) {
-              signOut();
-            }
-          };
-          
-          return <AppContent signOut={handleSignOut} user={user} />;
-        }}
-      </Authenticator>
-    </Router>
-  );
-}
-
-export default App;
+export default HomePage;
