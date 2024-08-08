@@ -1,49 +1,129 @@
 import React, { useState, useEffect } from 'react';
-import { Amplify, Auth } from 'aws-amplify';
+import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
 import { Authenticator } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import HomePage from './HomePage';
 import StoreLinkPage from './StoreLinkPage';
 import DashboardPage from './DashboardPage';
 import ProfilePage from './ProfilePage';
-import outputs from "../amplify_outputs.json";
 
-Amplify.configure(outputs);
-
-const App: React.FC = () => {
-  const [firstName, setFirstName] = useState<string | null>(null);
+const HomePage: React.FC<{ user: any; signOut: () => void }> = ({ user, signOut }) => {
+  const [firstName, setFirstName] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [fullResponse, setFullResponse] = useState(null);
 
   useEffect(() => {
-    // Probeer de voornaam te vinden in de outputs
-    const findFirstName = () => {
-      if (outputs && outputs.userInfo && outputs.userInfo.firstName) {
-        setFirstName(outputs.userInfo.firstName);
-      } else {
-        console.log("Kon voornaam niet vinden in outputs");
+    const fetchUserInfo = async () => {
+      try {
+        const API_URL = 'https://p82pqtgrs0.execute-api.us-east-1.amazonaws.com/prod/getUserInfo';
+        const urlWithParams = `${API_URL}?username=${encodeURIComponent(user.username)}`;
+        console.log("Request URL:", urlWithParams); // Log de request URL
+        const response = await fetch(urlWithParams, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const responseBody = await response.json();
+        console.log("Response status:", response.status);
+        console.log("Response body:", responseBody);
+        setFullResponse(responseBody);
+
+        if (response.status === 200 && responseBody.success) {
+          console.log("Setting firstName:", responseBody.user_info.firstName);
+          setFirstName(responseBody.user_info.firstName);
+        } else {
+          console.error('Failed to fetch user info:', responseBody.message);
+          setErrorMessage(responseBody.message);
+        }
+      } catch (error) {
+        console.error('Error fetching user info:', error);
+        setErrorMessage('Error fetching user info');
       }
     };
 
-    findFirstName();
-  }, []);
+    fetchUserInfo();
+  }, [user.username]);
 
   return (
-    <Authenticator>
-      {({ signOut, user }) => (
-        <Router>
-          <div>
-            <h1>Welkom {firstName || 'Gebruiker'}</h1>
-            <Routes>
-              <Route path="/" element={<HomePage user={user} signOut={signOut} />} />
-              <Route path="/store-link" element={<StoreLinkPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-            </Routes>
-          </div>
-        </Router>
+    <div style={{ textAlign: 'center', paddingTop: '20px' }}>
+      <img 
+        src="https://i.postimg.cc/Mp8Whhmw/Ad-Pal-logo-no-white.png" 
+        style={{ width: '188px', height: '188px', margin: '0 auto', display: 'block' }} 
+        alt="AdPal Logo"
+      />
+      <h1 style={{ marginTop: '20px' }}>Welkom {firstName}</h1>
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      <p>We zijn nog druk bezig, je kunt alvast je store koppelen of het dashboard bekijken 😁</p>
+      <nav style={{ marginTop: '20px' }}>
+        <Link to="/store-link">
+          <button style={{ fontSize: '18px', padding: '10px 20px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white', margin: '10px' }}>
+            →Koppel mijn store!
+          </button>
+        </Link>
+        <Link to="/dashboard">
+          <button style={{ fontSize: '18px', padding: '10px 20px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white', margin: '10px' }}>
+            →Bekijk Dashboard
+          </button>
+        </Link>
+        <Link to="/profile">
+          <button style={{ fontSize: '18px', padding: '10px 20px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white', margin: '10px' }}>
+            Profiel
+          </button>
+        </Link>
+        <button onClick={signOut} style={{ fontSize: '18px', padding: '10px 20px', backgroundColor: '#f44336', border: 'none', cursor: 'pointer', color: 'white', margin: '10px' }}>
+          Uitloggen
+        </button>
+      </nav>
+      {fullResponse && (
+        <div style={{ textAlign: 'left', marginTop: '20px' }}>
+          <h2>Volledige Response van Lambda:</h2>
+          <pre>{JSON.stringify(fullResponse, null, 2)}</pre>
+        </div>
       )}
-    </Authenticator>
+    </div>
   );
 };
+
+const AppContent: React.FC<{ signOut: () => void; user: any }> = ({ signOut, user }) => {
+  const location = useLocation();
+
+  return (
+    <div style={{ padding: '20px' }}>
+      {location.pathname !== '/' && (
+        <Link to="/" style={{ position: 'fixed', top: '10px', left: '10px', textDecoration: 'none' }}>
+          <button style={{ fontSize: '16px', padding: '5px 10px', backgroundColor: '#083464', border: 'none', cursor: 'pointer', color: 'white' }}>
+            ← Terug naar Home
+          </button>
+        </Link>
+      )}
+      <Routes>
+        <Route path="/" element={<HomePage user={user} signOut={signOut} />} />
+        <Route path="/store-link" element={<StoreLinkPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <Authenticator>
+        {({ signOut, user }) => {
+          const handleSignOut = () => {
+            if (signOut) {
+              signOut();
+            }
+          };
+          
+          return <AppContent signOut={handleSignOut} user={user} />;
+        }}
+      </Authenticator>
+    </Router>
+  );
+}
 
 export default App;
